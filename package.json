@@ -1,0 +1,18 @@
+{
+  "name": "digital-lease-reader",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "Client",
+    "Server"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=Client\" \"npm run dev --workspace=Server\"",
+    "build": "npm run build --workspace=Server && npm run build --workspace=Client",
+    "preview": "npm run preview --workspace=Client",
+    "postinstall": "npm install --workspaces"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
