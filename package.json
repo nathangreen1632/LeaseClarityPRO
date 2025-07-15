@@ -7,12 +7,14 @@
     "Server"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev --workspace=Client\" \"npm run dev --workspace=Server\"",
     "build": "npm run build --workspace=Server && npm run build --workspace=Client",
-    "preview": "npm run preview --workspace=Client",
-    "postinstall": "npm install --workspaces"
+    "dev": "concurrently \"npm run dev --workspace=Client\" \"npm run dev --workspace=Server\"",
+    "start": "npm run build && concurrently \"npm run start --workspace=Server\" \"npm run preview --workspace=Client\"",
+    "preview": "npm run preview --workspace=Client"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.1"
   }
 }
