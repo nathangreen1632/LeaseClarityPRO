@@ -4,6 +4,26 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+function extractFirstJsonObject(text: string): string | null {
+  const firstBrace = text.indexOf('{');
+  if (firstBrace === -1) return null;
+  let open = 0;
+  for (let i = firstBrace; i < text.length; i++) {
+    if (text[i] === '{') open++;
+    if (text[i] === '}') open--;
+    if (open === 0) {
+      const candidate = text.slice(firstBrace, i + 1);
+      try {
+        JSON.parse(candidate);
+        return candidate;
+      } catch {
+        return null;
+      }
+    }
+  }
+  return null;
+}
+
 export const summarizeLease = async (text: string): Promise<any> => {
   const prompt = `
 You are an expert in lease agreements. Given the following lease text, extract and summarize these key terms:
@@ -33,14 +53,10 @@ ${text}
     });
 
     const content = completion.choices[0].message.content;
-
-    // Always a string, never undefined
     let cleanedContent = (content ?? '').replace(/```(?:json)?/gi, '').trim();
+    const jsonStr = extractFirstJsonObject(cleanedContent);
 
-    // Extract the first JSON object in the cleaned content
-    const jsonMatch = RegExp(/\{[\s\S]*}/).exec(cleanedContent);
-
-    if (!jsonMatch) {
+    if (!jsonStr) {
       return {
         error: true,
         message: 'No JSON found in model response.',
@@ -49,9 +65,9 @@ ${text}
     }
 
     try {
-      return JSON.parse(jsonMatch[0]);
+      return JSON.parse(jsonStr);
     } catch (parseErr) {
-      console.error('Error parsing JSON from AI response:', parseErr, jsonMatch[0]);
+      console.error('Error parsing JSON from AI response:', parseErr, jsonStr);
       return {
         error: true,
         message: 'Failed to parse AI response as JSON.',
