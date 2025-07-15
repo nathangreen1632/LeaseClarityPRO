@@ -11,6 +11,8 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
+app.disable('x-powered-by');
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -22,3 +24,4 @@ app.use('/api', routes);
 app.use(errorHandler);
 
 export default app;
+
