@@ -1,6 +1,7 @@
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { randomUUID } from 'crypto';
 
 // Polyfill __dirname for ES modules:
 const __filename = fileURLToPath(import.meta.url);
@@ -11,8 +12,8 @@ const storage = multer.diskStorage({
     cb(null, path.resolve(__dirname, '../../uploads'));
   },
   filename: (req, file, cb) => {
-    // Use a timestamp + original name for uniqueness
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    // Use a UUID + timestamp for uniqueness and security
+    const uniqueSuffix = `${Date.now()}-${randomUUID()}`;
     cb(null, uniqueSuffix + '-' + file.originalname);
   },
 });
