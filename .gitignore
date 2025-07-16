@@ -273,3 +273,4 @@ fabric.properties
 .idea
 .sequelizerc
 .pdf
+uploads/
