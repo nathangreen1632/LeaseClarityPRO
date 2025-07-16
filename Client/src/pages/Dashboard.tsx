@@ -21,7 +21,7 @@ export default function Home() {
       <div className="mt-6">
         {summaryLoading && (
           <div className="flex justify-center items-center">
-            <span className="text-[var(--theme-primary)] font-bold">Loading summary...</span>
+            <span className="text-[var(--theme-light)] font-bold">Loading summary...</span>
           </div>
         )}
         {summaryError && (
