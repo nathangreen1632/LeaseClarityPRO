@@ -1,15 +1,18 @@
+@import url('https://fonts.googleapis.com/css?family=Inter:wght@400;600;800&display=swap');
 @import "tailwindcss";
 
-@import url('https://fonts.googleapis.com/css?family=Inter:wght@400;600;800&display=swap');
-
 :root {
-    --theme-primary: #0061ff;   /* DocuSign blue */
-    --theme-accent: #ffd500;    /* DocuSign yellow */
-    --theme-outline: #111827;   /* dark outline */
-    --theme-base: #000000;      /* near-white background */
-    --theme-error: #ff384c;
-    --theme-card: #e5e7eb;
-    --theme-button: #ef4444;
+    --theme-base: #000000;
+    --theme-outline: #000000;
+    --theme-primary: #007bff;
+    --theme-secondary: #6c757d;
+    --theme-success: #28a745;
+    --theme-error: #ef0000;
+    --theme-error-dark: #b30000;
+    --theme-warning: #ffc107;
+    --theme-info: #17a2b8;
+    --theme-light: #f8f9fa;
+    --theme-dark: #343a40;
 }
 
 body {
