@@ -236,7 +236,7 @@ export default function LeaseSummaryCard({ summary, error }: Readonly<LeaseSumma
 
   return (
     <div className="bg-slate-200 rounded-2xl shadow-md p-5 w-full border-2 border-[var(--theme-outline)] mb-3">
-      <h2 className="text-xl font-extrabold text-[var(--theme-primary)] mb-4 text-center">Lease Summary</h2>
+      <h2 className="text-2xl font-extrabold text-[var(--theme-primary)] mb-4 text-center">Lease Summary</h2>
       <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
         {FIELDS.map(({ key, label }) => {
           let value = normalizedSummary[key];
