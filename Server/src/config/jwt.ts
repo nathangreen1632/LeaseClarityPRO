@@ -1,30 +1,28 @@
-import jwt, {JsonWebTokenError, JwtPayload, SignOptions, TokenExpiredError} from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const { JsonWebTokenError, TokenExpiredError } = jwt;
 
-// Explicit structure for a valid JWT payload
-export interface AuthJwtPayload extends JwtPayload {
+const JWT_SECRET: string | undefined = process.env.JWT_SECRET;
+
+export interface AuthJwtPayload extends jwt.JwtPayload {
   userId: number;
   email: string;
 }
 
-// Explicit error type
 export interface JwtError {
   error: true;
   message: string;
   details?: unknown;
 }
 
-// Union for allowed expiresIn values
 export type ExpiresInValue =
   | number
   | '30s' | '1m' | '5m' | '10m' | '15m' | '30m' | '1h' | '2h' | '6h' | '12h' | '1d' | '7d';
 
-// Strict result types
 export type JwtSignResult = string | JwtError;
 export type JwtVerifyResult = AuthJwtPayload | JwtError;
 
-export const signJwt = (
+export const signJwt: (payload: AuthJwtPayload, expiresIn?: ExpiresInValue) => JwtSignResult = (
   payload: AuthJwtPayload,
   expiresIn: ExpiresInValue = '2h'
 ): JwtSignResult => {
@@ -35,7 +33,7 @@ export const signJwt = (
     };
   }
   try {
-    const options: SignOptions = { expiresIn };
+    const options: jwt.SignOptions = { expiresIn };
     return jwt.sign(payload, JWT_SECRET, options);
   } catch (err) {
     return {
@@ -46,7 +44,7 @@ export const signJwt = (
   }
 };
 
-export const verifyJwt = (token: string): JwtVerifyResult => {
+export const verifyJwt: (token: string) => JwtVerifyResult = (token: string): JwtVerifyResult => {
   if (!JWT_SECRET) {
     return {
       error: true,
@@ -62,7 +60,7 @@ export const verifyJwt = (token: string): JwtVerifyResult => {
   try {
     return jwt.verify(token, JWT_SECRET) as AuthJwtPayload;
   } catch (err) {
-    let errorMsg = 'Failed to verify JWT. Unknown error.';
+    let errorMsg: string = 'Failed to verify JWT. Unknown error.';
     if (err instanceof TokenExpiredError) {
       errorMsg = 'Failed to verify JWT. Token expired.';
     } else if (err instanceof JsonWebTokenError) {
@@ -75,4 +73,3 @@ export const verifyJwt = (token: string): JwtVerifyResult => {
     };
   }
 };
-
