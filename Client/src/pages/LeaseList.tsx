@@ -5,13 +5,63 @@ interface LeaseListProps {
   onSelectSummary: (leaseId: number) => void;
 }
 
-const LeaseList: React.FC<LeaseListProps> = ({ onSelectSummary }) => {
+function formatPrettyDate(date: string | number | Date | null | undefined): string {
+  if (!date) return "Unknown";
+  const parsed = new Date(date);
+  if (isNaN(parsed.getTime())) return "Unknown";
+  return parsed.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+const LeaseList: React.FC<LeaseListProps> = ({ onSelectSummary }: LeaseListProps) => {
   const { leases, loading, error, fetchLeases, removeLease } = useLeaseStore();
 
   useEffect(() => {
-    fetchLeases();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    async function loadLeases() {
+      await fetchLeases();
+    }
+    void loadLeases();
+
   }, []);
+
+  async function handleDownload(leaseId: number, originalFileName: string): Promise<void> {
+    const token: string | null = localStorage.getItem('token');
+    if (!token) {
+      alert('You must be logged in to download files.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/lease/${leaseId}/download`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        alert('Failed to download lease.');
+        return;
+      }
+
+      const blob: Blob = await response.blob();
+      const url: string = window.URL.createObjectURL(blob);
+
+      const a: HTMLAnchorElement = document.createElement('a');
+      a.href = url;
+      a.download = originalFileName || `lease-${leaseId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    } catch (err) {
+      console.error('Download error:', err);
+      alert('An error occurred while downloading the file.');
+    }
+  }
 
   return (
     <section className="w-full mt-6">
@@ -37,14 +87,14 @@ const LeaseList: React.FC<LeaseListProps> = ({ onSelectSummary }) => {
         {leases.map((lease) => (
           <li
             key={lease.id}
-            className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-200 border-2 border-[var(--theme-outline)] rounded-xl px-1 py-3 shadow-sm transition-all"
+            className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[var{--theme-dark)] border-2 border-[var(--theme-light)] rounded-xl px-1 py-3 shadow-sm transition-all"
           >
             <div>
-              <span className="font-semibold text-[var(--theme-outline)] break-all">
+              <span className="font-semibold text-[var(--theme-light)] break-all">
                 {lease.originalFileName}
               </span>
               <div className="text-xs text-[var(--theme-secondary)]">
-                Uploaded: {new Date(lease.uploadedAt).toLocaleDateString()}
+                Uploaded: {formatPrettyDate(lease.uploadedAt)}
               </div>
             </div>
             <div className="flex gap-2 mt-3 sm:mt-0">
@@ -56,15 +106,14 @@ const LeaseList: React.FC<LeaseListProps> = ({ onSelectSummary }) => {
               >
                 Summary
               </button>
-              <a
+              <button
                 className="bg-[var(--theme-info)] text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-[var(--theme-success)] hover:text-white transition-colors"
-                href={`/api/lease/${lease.id}/download`}
-                target="_blank"
-                rel="noopener noreferrer"
+                onClick={() => handleDownload(lease.id, lease.originalFileName)}
+                disabled={loading}
                 aria-label="Download lease"
               >
                 Download
-              </a>
+              </button>
               <button
                 className="bg-[var(--theme-error)] text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-[var(--theme-error-dark)] hover:text-white transition-colors"
                 onClick={() => removeLease(lease.id)}
