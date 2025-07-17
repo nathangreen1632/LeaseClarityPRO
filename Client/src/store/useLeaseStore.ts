@@ -26,7 +26,6 @@ export const useLeaseStore = create<LeaseStoreState>((set) => ({
   // Fetch all leases
   fetchLeases: async () => {
     const token = useAuthStore.getState().token ?? localStorage.getItem('token');
-    console.log('Token for /api/lease fetch:', token);
 
     set({ loading: true, error: null });
     try {
@@ -61,7 +60,6 @@ export const useLeaseStore = create<LeaseStoreState>((set) => ({
   // Delete lease (graceful)
   removeLease: async (leaseId: number) => {
     const token = useAuthStore.getState().token ?? localStorage.getItem('token');
-    console.log('Token for DELETE /api/lease:', token);
 
     set({ loading: true, error: null });
     try {
@@ -102,7 +100,6 @@ export const useLeaseStore = create<LeaseStoreState>((set) => ({
   // Fetch summary for one lease (graceful)
   fetchLeaseSummary: async (leaseId: number) => {
     const token = useAuthStore.getState().token ?? localStorage.getItem('token');
-    console.log('Token for /api/lease/[id]/summary fetch:', token);
 
     set({ summaryLoading: true, summaryError: null, selectedSummary: null });
     try {
