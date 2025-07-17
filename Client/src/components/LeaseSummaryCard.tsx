@@ -158,7 +158,7 @@ function renderObjectField(obj: any, parentKey = ''): React.ReactNode {
   // Handle arrays
   if (Array.isArray(obj)) {
     return (
-      <ul className="list-disc ml-4">
+      <ul className="list-disc text-slate-200 ml-4">
         {obj.map((entry, idx) => {
           let key = `${parentKey}-idx-${idx}`;
           if (entry && typeof entry === 'object') {
@@ -180,7 +180,7 @@ function renderObjectField(obj: any, parentKey = ''): React.ReactNode {
   // Handle objects
   if (typeof obj === "object") {
     return (
-      <ul className="list-disc ml-4">
+      <ul className="list-disc text-slate-200 ml-4">
         {Object.entries(obj).map(([k, v], idx) => {
           const key = `${parentKey}-${k}-${idx}`;
           let valueContent: React.ReactNode;
@@ -195,7 +195,7 @@ function renderObjectField(obj: any, parentKey = ''): React.ReactNode {
 
           return (
             <li key={key}>
-              <span className="font-semibold">
+              <span className="font-semibold text-slate-200">
                 {k.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())}:
               </span>{" "}
               <span>{valueContent}</span>
@@ -214,7 +214,7 @@ function renderObjectField(obj: any, parentKey = ''): React.ReactNode {
 export default function LeaseSummaryCard({ summary, error }: Readonly<LeaseSummaryCardProps>) {
   if (error) {
     return (
-      <div className="bg-[var(--theme-error)] text-white rounded-2xl p-4 shadow-md my-2 w-full text-center font-bold">
+      <div className="bg-[var(--theme-error)] text-slate-200 rounded-2xl p-4 shadow-md my-2 w-full text-center font-bold">
         {error}
       </div>
     );
@@ -235,26 +235,26 @@ export default function LeaseSummaryCard({ summary, error }: Readonly<LeaseSumma
   );
 
   return (
-    <div className="bg-slate-200 rounded-2xl shadow-md p-5 w-full border-2 border-[var(--theme-outline)] mb-3">
-      <h2 className="text-2xl font-extrabold text-[var(--theme-primary)] mb-4 text-center">Lease Summary</h2>
+    <div className="bg-[var(--theme-dark)] rounded-2xl shadow-md p-5 w-full border-2 border-red-500 mb-3">
+      <h2 className="text-2xl font-extrabold text-white mb-4 text-center underline">Lease Summary</h2>
       <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
         {FIELDS.map(({ key, label }) => {
           let value = normalizedSummary[key];
 
           let content: React.ReactNode;
           if (!value) {
-            content = <span className="text-[var(--theme-error)] italic">Not found</span>;
+            content = <span className="text-red-500 italic font-extrabold text-xl">Not found</span>;
           } else if (typeof value === 'object') {
             content = renderObjectField(value);
           } else if (CURRENCY_FIELDS.includes(key)) {
-            content = <span className="text-[var(--theme-base)] font-bold">{formatCurrency(value)}</span>;
+            content = <span className="text-slate-200 font-bold">{formatCurrency(value)}</span>;
           } else {
-            content = <span className="text-[var(--theme-base)] font-bold">{value}</span>;
+            content = <span className="text-slate-200 font-bold">{value}</span>;
           }
 
           return (
             <React.Fragment key={key}>
-              <dt className="font-semibold text-[var(--theme-base)]">{label}</dt>
+              <dt className="font-semibold text-slate-200">{label}</dt>
               <dd className="mb-2">{content}</dd>
             </React.Fragment>
           );
