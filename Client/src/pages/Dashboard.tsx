@@ -1,6 +1,8 @@
 import LeaseList from '../pages/LeaseList.js';
 import LeaseSummaryCard from '../components/LeaseSummaryCard.js';
+import Spinner from '../components/Spinner.js';
 import { useLeaseStore } from '../store/useLeaseStore.js';
+import { toast } from 'react-hot-toast';
 
 export default function Home() {
   const {
@@ -10,9 +12,13 @@ export default function Home() {
     fetchLeaseSummary,
   } = useLeaseStore();
 
-  // When user clicks "Summary" in LeaseList:
-  const handleSelectSummary = (leaseId: number) => {
-    fetchLeaseSummary(leaseId);
+  const handleSelectSummary: (leaseId: number) => Promise<void> = async (leaseId: number) => {
+    try {
+      await fetchLeaseSummary(leaseId);
+    } catch (err) {
+      console.error('Failed to fetch lease summary:', err);
+      toast.error("Failed to fetch lease summary. Please try again.");
+    }
   };
 
   return (
@@ -20,8 +26,11 @@ export default function Home() {
       <LeaseList onSelectSummary={handleSelectSummary} />
       <div className="mt-6">
         {summaryLoading && (
-          <div className="flex justify-center items-center">
-            <span className="text-[var(--theme-light)] font-bold">Loading summary...</span>
+          <div className="flex flex-col justify-center items-center py-8 gap-3">
+            <Spinner size={48} color="var(--theme-primary)" />
+            <span className="text-[var(--theme-light)] font-bold mt-2">
+              Loading Summary...
+            </span>
           </div>
         )}
         {summaryError && (
