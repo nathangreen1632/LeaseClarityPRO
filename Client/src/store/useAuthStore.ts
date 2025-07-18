@@ -1,10 +1,10 @@
 import { create } from 'zustand';
 import type { AuthCredentials, AuthResponse } from '../types/auth.js';
+import {useLeaseStore} from "./useLeaseStore.ts";
 
-// Helper to load from localStorage
-function getStoredAuth() {
-  const token = localStorage.getItem('token');
-  const userRaw = localStorage.getItem('user');
+function getStoredAuth(): { token: string | null; user: AuthResponse['user'] | null } {
+  const token: string | null = localStorage.getItem('token');
+  const userRaw: string | null = localStorage.getItem('user');
   let user = null;
   try {
     if (userRaw) user = JSON.parse(userRaw);
@@ -27,7 +27,7 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
   loading: false,
   error: null,
 
-  login: async (creds) => {
+  login: async (creds: AuthCredentials): Promise<void> => {
     set({ loading: true, error: null });
     try {
       const res = await fetch('/api/auth/login', {
@@ -35,7 +35,7 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(creds),
       });
-      const data = await res.json();
+      const data: any = await res.json();
       if (!res.ok || !data?.token || !data?.user) {
         set({ error: data?.error ?? 'Login failed.', loading: false });
         return;
@@ -61,15 +61,15 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
     }
   },
 
-  register: async (creds) => {
+  register: async (creds: AuthCredentials): Promise<void> => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch('/api/auth/register', {
+      const res: Response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(creds),
       });
-      const data = await res.json();
+      const data: any = await res.json();
       if (!res.ok || !data?.token || !data?.user) {
         set({ error: data?.error ?? 'Registration failed.', loading: false });
         return;
@@ -95,9 +95,10 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
     }
   },
 
-  logout: () => {
+  logout: (): void => {
     set({ user: null, token: null, error: null });
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    useLeaseStore.getState().reset();
   },
 }));

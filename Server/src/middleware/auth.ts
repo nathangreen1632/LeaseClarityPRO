@@ -1,5 +1,5 @@
-import {NextFunction, Request, Response} from 'express';
-import jwt from 'jsonwebtoken';
+import { NextFunction, Request, Response } from 'express';
+import { verifyJwt } from '../config/jwt.js';
 
 export interface AuthRequest extends Request {
   user?: { userId: number; email: string };
@@ -15,10 +15,13 @@ export const authenticateJWT = (
     return res.status(401).json({ error: 'Missing or invalid token' });
   }
   const token = authHeader.split(' ')[1];
-  try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET!) as { userId: number; email: string };
-    return next(); // <-- Add 'return' here
-  } catch {
-    return res.status(401).json({ error: 'Invalid token' });
+  const payload = verifyJwt(token);
+
+  if ('error' in payload) {
+    // Token invalid or expired, payload.message is user-friendly
+    return res.status(401).json({ error: payload.message });
   }
+
+  req.user = payload;
+  return next();
 };

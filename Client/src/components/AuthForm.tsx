@@ -33,7 +33,7 @@ const AuthForm: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-sm mx-auto bg-white rounded-2xl shadow-lg p-6 border-2 border-[var(--theme-outline)]">
+    <div className="w-full max-w-sm mx-auto bg-slate-200 rounded-2xl shadow-lg p-6 border-2 border-[var(--theme-outline)]">
       <h2 className="text-2xl font-bold text-center text-[var(--theme-primary)] mb-4">
         {mode === 'login' ? 'Sign In' : 'Register'}
       </h2>
@@ -43,7 +43,7 @@ const AuthForm: React.FC = () => {
             <input
               name="firstName"
               placeholder="First Name"
-              value={(fields as any).firstName || ''}
+              value={(fields as any).firstName ?? ''}
               onChange={handleChange}
               className="border rounded-lg px-3 py-2 focus:outline-[var(--theme-primary)]"
               autoFocus
@@ -84,7 +84,7 @@ const AuthForm: React.FC = () => {
         />
         <button
           type="submit"
-          className={`bg-[var(--theme-primary)] text-white font-bold rounded-lg py-2 mt-3 transition-colors hover:bg-[var(--theme-accent)] hover:text-[var(--theme-primary)] ${
+          className={`bg-[var(--theme-primary)] text-white font-bold rounded-lg py-2 mt-3 transition-colors hover:bg-emerald-300 hover:text-[var(--theme-primary)] ${
             loading ? 'opacity-70 cursor-not-allowed' : ''
           }`}
           disabled={loading}

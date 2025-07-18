@@ -73,7 +73,7 @@ export default function LeaseUploadForm({ onUploadSuccess }: Readonly<LeaseUploa
     <form className="w-full flex flex-col items-center" onSubmit={e => e.preventDefault()}>
       <div
         {...getRootProps()}
-        className={`w-full flex flex-col items-center justify-center border-2 border-dashed rounded-2xl cursor-pointer py-8 bg-white transition
+        className={`w-full flex flex-col items-center justify-center border-2 border-dashed rounded-2xl cursor-pointer py-8 mt-72 bg-slate-200 transition
         ${isDragActive
           ? 'border-[var(--theme-primary)] bg-[var(--theme-accent)]/30'
           : 'border-[var(--theme-outline)] hover:border-[var(--theme-primary)]'}

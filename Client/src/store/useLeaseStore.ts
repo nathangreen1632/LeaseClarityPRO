@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { useAuthStore } from './useAuthStore'; // <-- Add this import
+import { useAuthStore } from './useAuthStore';
 import type { Lease } from '../types/lease.js';
 import type { LeaseSummary } from '../components/LeaseSummaryCard';
 
@@ -13,29 +13,32 @@ interface LeaseStoreState {
   fetchLeases: () => Promise<void>;
   removeLease: (leaseId: number) => Promise<void>;
   fetchLeaseSummary: (leaseId: number) => Promise<void>;
+  reset: () => void;
 }
 
-export const useLeaseStore = create<LeaseStoreState>((set) => ({
+const initialState = {
   leases: [],
   loading: false,
   error: null,
   selectedSummary: null,
   summaryLoading: false,
   summaryError: null,
+};
 
-  // Fetch all leases
-  fetchLeases: async () => {
+export const useLeaseStore = create<LeaseStoreState>((set) => ({
+  ...initialState,
+
+  fetchLeases: async (): Promise<void> => {
     const token = useAuthStore.getState().token ?? localStorage.getItem('token');
-    console.log('Token for /api/lease fetch:', token);
 
     set({ loading: true, error: null });
     try {
-      const res = await fetch('/api/lease', {
+      const res: Response = await fetch('/api/lease', {
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
-      const data = await res.json();
+      const data: any = await res.json();
 
       if (!res.ok || !data?.leases) {
         set({
@@ -58,14 +61,12 @@ export const useLeaseStore = create<LeaseStoreState>((set) => ({
     }
   },
 
-  // Delete lease (graceful)
-  removeLease: async (leaseId: number) => {
-    const token = useAuthStore.getState().token ?? localStorage.getItem('token');
-    console.log('Token for DELETE /api/lease:', token);
+  removeLease: async (leaseId: number): Promise<void> => {
+    const token: string | null = useAuthStore.getState().token ?? localStorage.getItem('token');
 
     set({ loading: true, error: null });
     try {
-      const res = await fetch(`/api/lease/${leaseId}`, {
+      const res: Response = await fetch(`/api/lease/${leaseId}`, {
         method: 'DELETE',
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -84,7 +85,7 @@ export const useLeaseStore = create<LeaseStoreState>((set) => ({
         });
         return;
       }
-      set((state) => ({
+      set((state: LeaseStoreState): { leases: Lease[]; loading: false } => ({
         leases: state.leases.filter((l) => l.id !== leaseId),
         loading: false,
       }));
@@ -99,19 +100,17 @@ export const useLeaseStore = create<LeaseStoreState>((set) => ({
     }
   },
 
-  // Fetch summary for one lease (graceful)
-  fetchLeaseSummary: async (leaseId: number) => {
-    const token = useAuthStore.getState().token ?? localStorage.getItem('token');
-    console.log('Token for /api/lease/[id]/summary fetch:', token);
+  fetchLeaseSummary: async (leaseId: number): Promise<void> => {
+    const token: string | null = useAuthStore.getState().token ?? localStorage.getItem('token');
 
     set({ summaryLoading: true, summaryError: null, selectedSummary: null });
     try {
-      const res = await fetch(`/api/lease/${leaseId}/summary`, {
+      const res: Response = await fetch(`/api/lease/${leaseId}/summary`, {
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
-      const data = await res.json();
+      const data: any = await res.json();
 
       if (!res.ok || !data?.summary) {
         set({
@@ -137,4 +136,6 @@ export const useLeaseStore = create<LeaseStoreState>((set) => ({
       });
     }
   },
+
+  reset: (): void => set({ ...initialState }),
 }));

@@ -7,5 +7,5 @@ const PORT = process.env.PORT ?? 3001;
 
 sequelize.sync().then(() => {
   logger.info('Database synced');
-  app.listen(PORT, () => logger.info(`Server running on port ${PORT}`));
+  app.listen(PORT, () => logger.info(`Server running at http://localhost:${PORT}`));
 });
