@@ -2,6 +2,9 @@
   "name": "digital-lease-reader",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "20.x"
+  },
   "workspaces": [
     "Client",
     "Server"
@@ -10,6 +13,7 @@
     "build": "npm run build --workspace=Server && npm run build --workspace=Client",
     "dev": "concurrently \"npm run dev --workspace=Client\" \"npm run dev --workspace=Server\"",
     "start": "npm run build && concurrently \"npm run start --workspace=Server\" \"npm run preview --workspace=Client\"",
+    "postinstall": "npm install --workspace=Server --ignore-scripts && npm install --workspace=Client --ignore-scripts",
     "preview": "npm run preview --workspace=Client"
   },
   "devDependencies": {
