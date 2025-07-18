@@ -42,14 +42,14 @@ interface LeaseSummaryCardProps {
 }
 
 // Fields to treat as currency
-const CURRENCY_FIELDS = [
+const CURRENCY_FIELDS: string[] = [
   'rent', 'securityDeposit', 'animalDeposit', 'petRent',
   'petViolationFee', 'returnedCheckFee', 'applicationFee', 'adminFee',
   'expediteFee', 'amendmentFee', 'hoaFee', 'evaluationFee', 'initial', 'daily',
 ];
 
 // Currency formatting helper
-function formatCurrency(value: any) {
+function formatCurrency(value: any): any {
   if (value == null || value === '') return '';
   let num = typeof value === 'string' ? value.replace(/[$,]/g, '') : value;
   let parsed = Number(num);
@@ -58,7 +58,7 @@ function formatCurrency(value: any) {
 }
 
 // Main fields
-const FIELDS = [
+const FIELDS: {key: string; label: string}[] = [
   { key: 'rent', label: 'Monthly Rent' },
   { key: 'leaseStartDate', label: 'Lease Start Date' },
   { key: 'leaseEndDate', label: 'Lease End Date' },
@@ -74,7 +74,7 @@ const FIELDS = [
   { key: 'animalAgreement', label: 'Animals Allowed' },
   { key: 'animalDeposit', label: 'Animal Deposit' },
   { key: 'petRent', label: 'Monthly Pet Rent' },
-  { key: 'petViolationFee', label: 'Pet Violation Fee' }, // This will now be properly populated!
+  { key: 'petViolationFee', label: 'Pet Violation Fee' },
   { key: 'requiredInsurance', label: 'Renter’s Insurance Required' },
   { key: 'insuranceMinimum', label: 'Insurance Minimum Coverage' },
   { key: 'utilitiesTenant', label: 'Utilities Paid by Tenant' },
@@ -126,8 +126,7 @@ const SUMMARY_KEY_MAP: Record<string, string> = {
   'Cash Payment Allowed': 'cashPaymentAllowed'
 };
 
-// Step 1: Add bubble-up rules
-const BUBBLE_UP_FIELDS = [
+const BUBBLE_UP_FIELDS: { parent: string; child: string; to: string }[] = [
   { parent: 'petPolicy', child: 'Pet Violation Fee', to: 'petViolationFee' },
   // Add more here for other fields as needed, e.g. { parent: 'lateFees', child: 'Daily Fee', to: 'lateFeeDaily' }
 ];
@@ -138,7 +137,6 @@ function normalizeSummary(rawSummary: Record<string, unknown>): LeaseSummary {
     const mappedKey: string = SUMMARY_KEY_MAP[rawKey] || rawKey;
     normalized[mappedKey] = value;
   }
-  // Bubble up all fields from their parent
   for (const { parent, child, to } of BUBBLE_UP_FIELDS) {
     if (normalized[parent] && typeof normalized[parent] === 'object') {
       const obj = normalized[parent] as Record<string, any>;
@@ -151,19 +149,16 @@ function normalizeSummary(rawSummary: Record<string, unknown>): LeaseSummary {
   return normalized;
 }
 
-// Renders objects and arrays with currency formatting for nested fields
 function renderObjectField(obj: any, parentKey = ''): React.ReactNode {
   if (!obj) return null;
 
-  // Handle arrays
   if (Array.isArray(obj)) {
     return (
       <ul className="list-disc text-slate-200 ml-4">
-        {obj.map((entry, idx) => {
-          let key = `${parentKey}-idx-${idx}`;
+        {obj.map((entry: any, idx: number) => {
+          let key: string = `${parentKey}-idx-${idx}`;
           if (entry && typeof entry === 'object') {
-            // Try to build a more descriptive key if possible
-            const firstProp = Object.values(entry)[0];
+            const firstProp: unknown = Object.values(entry)[0];
             if (firstProp && typeof firstProp === 'string') {
               key += '-' + firstProp.slice(0, 10).replace(/\s/g, '_');
             }
@@ -177,11 +172,10 @@ function renderObjectField(obj: any, parentKey = ''): React.ReactNode {
     );
   }
 
-  // Handle objects
   if (typeof obj === "object") {
     return (
-      <ul className="list-disc text-slate-200 ml-4">
-        {Object.entries(obj).map(([k, v], idx) => {
+      <ul className="list-disc text-[var(--theme-light)] ml-4">
+        {Object.entries(obj).map(([k, v]: [string, unknown], idx: number) => {
           const key = `${parentKey}-${k}-${idx}`;
           let valueContent: React.ReactNode;
 
@@ -195,7 +189,7 @@ function renderObjectField(obj: any, parentKey = ''): React.ReactNode {
 
           return (
             <li key={key}>
-              <span className="font-semibold text-slate-200">
+              <span className="font-semibold text-[var(--theme-light)]">
                 {k.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())}:
               </span>{" "}
               <span>{valueContent}</span>
@@ -206,10 +200,8 @@ function renderObjectField(obj: any, parentKey = ''): React.ReactNode {
     );
   }
 
-  // Handle primitives
   return <span>{String(obj)}</span>;
 }
-
 
 export default function LeaseSummaryCard({ summary, error }: Readonly<LeaseSummaryCardProps>) {
   if (error) {
@@ -228,22 +220,22 @@ export default function LeaseSummaryCard({ summary, error }: Readonly<LeaseSumma
     );
   }
 
-  const normalizedSummary = normalizeSummary(summary);
+  const normalizedSummary: LeaseSummary = normalizeSummary(summary);
 
-  const extraFields = Object.keys(normalizedSummary).filter(
+  const extraFields: string[] = Object.keys(normalizedSummary).filter(
     key => !FIELDS.some(f => f.key === key)
   );
 
   return (
-    <div className="bg-[var(--theme-dark)] rounded-2xl shadow-md p-5 w-full border-2 border-red-500 mb-3">
-      <h2 className="text-2xl font-extrabold text-white mb-4 text-center underline">Lease Summary</h2>
-      <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+    <div className="bg-[var(--theme-dark)] rounded-2xl shadow-md p-4 sm:p-6 w-full border-2 border-red-500 mb-3">
+      <h2 className="text-xl sm:text-2xl font-extrabold text-white mb-4 text-center underline">Lease Summary</h2>
+      <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 sm:gap-x-6 sm:gap-y-3">
         {FIELDS.map(({ key, label }) => {
           let value = normalizedSummary[key];
 
           let content: React.ReactNode;
           if (!value) {
-            content = <span className="text-red-500 italic font-extrabold text-xl">Not found</span>;
+            content = <span className="text-red-500 italic font-extrabold text-lg sm:text-xl">Not found</span>;
           } else if (typeof value === 'object') {
             content = renderObjectField(value);
           } else if (CURRENCY_FIELDS.includes(key)) {
@@ -262,19 +254,24 @@ export default function LeaseSummaryCard({ summary, error }: Readonly<LeaseSumma
       </dl>
 
       {extraFields.length > 0 && (
-        <div className="mt-6 bg-[var(--theme-card)] rounded-xl p-3 border border-[var(--theme-accent)]">
-          <div className="font-bold text-[var(--theme-primary)] mb-1">Raw Summary Fields</div>
-          <pre className="text-xs overflow-x-auto text-[var(--theme-outline)]">
-            {JSON.stringify(
-              Object.fromEntries(
-                extraFields.map(key => [key, normalizedSummary[key]])
-              ),
-              null,
-              2
-            )}
-          </pre>
-        </div>
-      )}
+        <div className="mt-6 bg-[var(--theme-base)] rounded-xl p-3 border border-[var(--theme-accent)]">
+          <div className="font-bold text-[var(--theme-light)] mb-1">Raw Summary Fields</div>
+          <pre className="text-xs overflow-x-auto text-[var(--theme-light)]">
+          {JSON.stringify(
+            Object.fromEntries(
+              extraFields.map(key => [
+                key,
+                CURRENCY_FIELDS.includes(key)
+                  ? formatCurrency(normalizedSummary[key])
+                  : normalizedSummary[key]
+              ])
+            ),
+            null,
+            2
+          )}
+        </pre>
+      </div>
+    )}
     </div>
   );
 }

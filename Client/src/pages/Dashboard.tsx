@@ -22,15 +22,15 @@ export default function Home() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto px-2 py-4">
+    <div className="w-full max-w-2xl mx-auto px-2 sm:px-4 md:px-6 py-4">
       <LeaseList onSelectSummary={handleSelectSummary} />
       <div className="mt-6">
         {summaryLoading && (
           <div className="flex flex-col justify-center items-center py-8 gap-3">
-            <Spinner size={48} color="var(--theme-primary)" />
+            <Spinner size={48} color="var(--theme-error)" />
             <span className="text-[var(--theme-light)] font-bold mt-2">
-              Loading Summary...
-            </span>
+            Loading Summary...
+          </span>
           </div>
         )}
         {summaryError && (
