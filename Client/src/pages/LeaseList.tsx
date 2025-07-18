@@ -19,7 +19,7 @@ function formatPrettyDate(date: string | number | Date | null | undefined): stri
 const LeaseList: React.FC<LeaseListProps> = ({ onSelectSummary }: LeaseListProps) => {
   const { leases, loading, error, fetchLeases, removeLease } = useLeaseStore();
 
-  useEffect(() => {
+  useEffect((): void => {
     async function loadLeases() {
       await fetchLeases();
     }
@@ -35,7 +35,7 @@ const LeaseList: React.FC<LeaseListProps> = ({ onSelectSummary }: LeaseListProps
     }
 
     try {
-      const response = await fetch(`/api/lease/${leaseId}/download`, {
+      const response: Response = await fetch(`/api/lease/${leaseId}/download`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -87,7 +87,7 @@ const LeaseList: React.FC<LeaseListProps> = ({ onSelectSummary }: LeaseListProps
         {leases.map((lease) => (
           <li
             key={lease.id}
-            className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[var{--theme-dark)] border-2 border-[var(--theme-light)] rounded-xl px-1 py-3 shadow-sm transition-all"
+            className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[var{--theme-dark)] border-2 border-[var(--theme-light)] rounded-xl px-4 py-5 shadow-sm transition-all"
           >
             <div>
               <span className="font-semibold text-[var(--theme-light)] break-all">
@@ -97,9 +97,9 @@ const LeaseList: React.FC<LeaseListProps> = ({ onSelectSummary }: LeaseListProps
                 Uploaded: {formatPrettyDate(lease.uploadedAt)}
               </div>
             </div>
-            <div className="flex gap-2 mt-3 sm:mt-0">
+            <div className="flex gap-2 mt-3 sm:mt-0 pr-2">
               <button
-                className="bg-[var(--theme-primary)] text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-[var(--theme-success)] hover:text-[var(--theme-light)] transition-colors"
+                className="bg-[var(--theme-primary)] text-[var(--theme-light)] px-3 py-1 rounded-lg text-xs font-bold hover:bg-[var(--theme-success)] hover:text-[var(--theme-base)] transition-colors"
                 onClick={() => onSelectSummary(lease.id)}
                 disabled={loading}
                 aria-label="Show summary"
@@ -107,7 +107,7 @@ const LeaseList: React.FC<LeaseListProps> = ({ onSelectSummary }: LeaseListProps
                 Summary
               </button>
               <button
-                className="bg-[var(--theme-info)] text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-[var(--theme-success)] hover:text-white transition-colors"
+                className="bg-[var(--theme-info)] text-[var(--theme-light)] px-3 py-1 rounded-lg text-xs font-bold hover:bg-[var(--theme-success)] hover:text-[var(--theme-base)] transition-colors"
                 onClick={() => handleDownload(lease.id, lease.originalFileName)}
                 disabled={loading}
                 aria-label="Download lease"
@@ -115,7 +115,7 @@ const LeaseList: React.FC<LeaseListProps> = ({ onSelectSummary }: LeaseListProps
                 Download
               </button>
               <button
-                className="bg-[var(--theme-error)] text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-[var(--theme-error-dark)] hover:text-white transition-colors"
+                className="bg-[var(--theme-error)] text-[var(--theme-light)] px-3 py-1 rounded-lg text-xs font-bold hover:bg-[var(--theme-error-dark)] hover:text-[var(--theme-light)] transition-colors"
                 onClick={() => removeLease(lease.id)}
                 disabled={loading}
                 aria-label="Delete lease"
