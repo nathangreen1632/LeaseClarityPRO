@@ -10,6 +10,18 @@ interface LeaseStoreState {
   selectedSummary: LeaseSummary | null;
   summaryLoading: boolean;
   summaryError: string | null;
+
+  quickLookOpen: boolean;
+  quickLookLeaseId: number | null;
+  quickLookSummary: string | null;
+  quickLookLoading: boolean;
+  quickLookError: string | null;
+  leaseFileName?: string | null;
+
+  openQuickLook: (leaseId: number, leaseFileName?: string) => void;
+  closeQuickLook: () => void;
+  fetchQuickLookSummary: (leaseId: number) => Promise<void>;
+
   fetchLeases: () => Promise<void>;
   removeLease: (leaseId: number) => Promise<void>;
   fetchLeaseSummary: (leaseId: number) => Promise<void>;
@@ -23,9 +35,15 @@ const initialState = {
   selectedSummary: null,
   summaryLoading: false,
   summaryError: null,
+  quickLookOpen: false,
+  quickLookLeaseId: null,
+  quickLookSummary: null,
+  quickLookLoading: false,
+  quickLookError: null,
+  leaseFileName: null,
 };
 
-export const useLeaseStore = create<LeaseStoreState>((set) => ({
+export const useLeaseStore = create<LeaseStoreState>((set, _get) => ({
   ...initialState,
 
   fetchLeases: async (): Promise<void> => {
@@ -133,6 +151,64 @@ export const useLeaseStore = create<LeaseStoreState>((set) => ({
             : 'Unexpected error fetching summary.',
         summaryLoading: false,
         selectedSummary: null,
+      });
+    }
+  },
+
+  openQuickLook: (leaseId: number, leaseFileName?: string) => {
+    set({
+      quickLookOpen: true,
+      quickLookLeaseId: leaseId,
+      quickLookSummary: null,
+      quickLookLoading: true,
+      quickLookError: null,
+      leaseFileName: leaseFileName ?? null,
+    });
+  },
+
+  closeQuickLook: () => {
+    set({
+      quickLookOpen: false,
+      quickLookLeaseId: null,
+      quickLookSummary: null,
+      quickLookLoading: false,
+      quickLookError: null,
+      leaseFileName: null,
+    });
+  },
+
+  fetchQuickLookSummary: async (leaseId: number): Promise<void> => {
+    const token: string | null = useAuthStore.getState().token ?? localStorage.getItem('token');
+    set({ quickLookLoading: true, quickLookError: null });
+    try {
+      const res: Response = await fetch(`/api/lease/${leaseId}/summary/human`, {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      const data: any = await res.json();
+
+      if (!res.ok || !data?.summary) {
+        set({
+          quickLookError: data?.error ?? 'Failed to fetch summary.',
+          quickLookLoading: false,
+          quickLookSummary: null,
+        });
+        return;
+      }
+      set({
+        quickLookSummary: data.summary,
+        quickLookLoading: false,
+        quickLookError: null,
+      });
+    } catch (err: unknown) {
+      set({
+        quickLookError:
+          err instanceof Error
+            ? err.message
+            : 'Unexpected error fetching summary.',
+        quickLookLoading: false,
+        quickLookSummary: null,
       });
     }
   },
