@@ -24,7 +24,7 @@ function extractFirstJsonObject(text: string): string | null {
   return null;
 }
 
-export const summarizeLease = async (text: string): Promise<any> => {
+export const summarizeLease: (text: string) => Promise<any> = async (text: string): Promise<any> => {
   const prompt = `
 You are an expert in lease agreements. Given the following lease text, extract and summarize these key terms to each of their respective fields.:
 
@@ -78,9 +78,9 @@ ${text}
       temperature: 0.2,
     });
 
-    const content = completion.choices[0].message.content;
-    let cleanedContent = (content ?? '').replace(/```(?:json)?/gi, '').trim();
-    const jsonStr = extractFirstJsonObject(cleanedContent);
+    const content: string | null = completion.choices[0].message.content;
+    let cleanedContent: string = (content ?? '').replace(/```(?:json)?/gi, '').trim();
+    const jsonStr: string | null = extractFirstJsonObject(cleanedContent);
 
     if (!jsonStr) {
       return {
@@ -108,3 +108,42 @@ ${text}
     };
   }
 };
+
+export const humanReadableLeaseSummary: (text: string) => Promise<any> = async (text: string): Promise<any> => {
+  const prompt = `
+You are a friendly expert assistant. Please summarize the following lease agreement for a tenant in clear, easy-to-understand language. **Write ONLY in plain English. Do NOT use any markdown, bold, italics, asterisks, bullet points, or other formatting. Do NOT use numbered or bulleted lists. Write in clear sentences and paragraphs, separating topics with new lines if needed.**
+
+Lease Agreement:
+${text}
+`;
+  try {
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        { role: 'system', content: 'You summarize leases for tenants in plain language.' },
+        { role: 'user', content: prompt },
+      ],
+      temperature: 0.4,
+    });
+
+    const content: string | undefined = completion.choices[0].message.content?.trim();
+    if (!content) {
+      return {
+        error: true,
+        message: 'No summary text returned by OpenAI.',
+      };
+    }
+    const noMarkdown = content
+      .replace(/[*_`>#-]/g, '')
+      .replace(/\n{2,}/g, '\n\n')
+      .replace(/ +/g, ' ');
+    return { summary: noMarkdown.trim() };
+  } catch (apiErr) {
+    return {
+      error: true,
+      message: 'OpenAI API call failed.',
+      details: apiErr instanceof Error ? apiErr.message : apiErr,
+    };
+  }
+};
+
