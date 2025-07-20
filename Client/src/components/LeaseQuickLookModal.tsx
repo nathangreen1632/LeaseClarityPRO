@@ -1,5 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import Spinner from "./Spinner";
+import LeaseChatbotModal from './LeaseChatbotModal';
+import { useChatStore } from '../store/useChatStore';
 
 interface LeaseQuickLookModalProps {
   leaseId: number | null;
@@ -25,6 +27,7 @@ function LeaseQuickLookModal(props: Readonly<LeaseQuickLookModalProps>) {
   } = props;
 
   const backdropRef = useRef<HTMLDivElement>(null);
+  const { isOpen, toggle } = useChatStore(); // chat open state
 
   useEffect((): void => {
     if (open && leaseId) {
@@ -44,7 +47,7 @@ function LeaseQuickLookModal(props: Readonly<LeaseQuickLookModalProps>) {
     };
   }, [open]);
 
-  useEffect(() => {
+  useEffect((): void => {
     if (open && backdropRef.current) {
       backdropRef.current.focus();
     }
@@ -124,6 +127,22 @@ function LeaseQuickLookModal(props: Readonly<LeaseQuickLookModalProps>) {
           className="max-h-[60vh] overflow-y-auto whitespace-pre-wrap text-base sm:text-lg leading-relaxed text-[var(--theme-light)]"
         >
           {content}
+        </div>
+
+        <div className="mt-6 border-t border-[var(--theme-primary)] pt-4">
+          <div className="flex justify-end">
+            <button
+              onClick={toggle}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2 rounded-md mb-3"
+            >
+              {isOpen ? 'Hide Chatbot' : 'Ask a Question'}
+            </button>
+          </div>
+          {isOpen && leaseId !== null && (
+            <div className="max-h-[400px] overflow-hidden border rounded-md">
+              <LeaseChatbotModal />
+            </div>
+          )}
         </div>
       </div>
     </div>
