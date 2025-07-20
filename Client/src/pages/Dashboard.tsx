@@ -3,6 +3,7 @@ import LeaseSummaryCard from '../components/LeaseSummaryCard.js';
 import Spinner from '../components/Spinner.js';
 import { useLeaseStore } from '../store/useLeaseStore.js';
 import { toast } from 'react-hot-toast';
+import LeaseQuickLookModal from '../components/LeaseQuickLookModal';
 
 export default function Home() {
   const {
@@ -10,9 +11,18 @@ export default function Home() {
     summaryLoading,
     summaryError,
     fetchLeaseSummary,
+
+    quickLookOpen,
+    quickLookLeaseId,
+    quickLookSummary,
+    quickLookLoading,
+    quickLookError,
+    fetchQuickLookSummary,
+    closeQuickLook,
+    leaseFileName,
   } = useLeaseStore();
 
-  const handleSelectSummary: (leaseId: number) => Promise<void> = async (leaseId: number) => {
+  const handleSelectSummary: (leaseId: number) => Promise<void> = async (leaseId: number): Promise<void> => {
     try {
       await fetchLeaseSummary(leaseId);
     } catch (err) {
@@ -22,7 +32,7 @@ export default function Home() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto px-2 sm:px-4 md:px-6 py-4">
+    <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 md:px-6 py-4">
       <LeaseList onSelectSummary={handleSelectSummary} />
       <div className="mt-6">
         {summaryLoading && (
@@ -40,6 +50,17 @@ export default function Home() {
           <LeaseSummaryCard summary={selectedSummary} />
         )}
       </div>
+
+      <LeaseQuickLookModal
+        leaseId={quickLookLeaseId}
+        open={quickLookOpen}
+        onClose={closeQuickLook}
+        fetchSummary={fetchQuickLookSummary}
+        summary={quickLookSummary}
+        loading={quickLookLoading}
+        error={quickLookError}
+        leaseFileName={leaseFileName ?? ''}
+      />
     </div>
   );
 }

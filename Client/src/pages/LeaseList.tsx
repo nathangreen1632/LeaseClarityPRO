@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useLeaseStore } from '../store/useLeaseStore';
 
 interface LeaseListProps {
@@ -16,15 +16,14 @@ function formatPrettyDate(date: string | number | Date | null | undefined): stri
   });
 }
 
-const LeaseList: React.FC<LeaseListProps> = ({ onSelectSummary }: LeaseListProps) => {
-  const { leases, loading, error, fetchLeases, removeLease } = useLeaseStore();
+function LeaseList({ onSelectSummary }: Readonly<LeaseListProps>) {
+  const { leases, loading, error, fetchLeases, removeLease, openQuickLook } = useLeaseStore();
 
   useEffect((): void => {
     async function loadLeases() {
       await fetchLeases();
     }
     void loadLeases();
-
   }, []);
 
   async function handleDownload(leaseId: number, originalFileName: string): Promise<void> {
@@ -87,7 +86,7 @@ const LeaseList: React.FC<LeaseListProps> = ({ onSelectSummary }: LeaseListProps
         {leases.map((lease) => (
           <li
             key={lease.id}
-            className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[var{--theme-dark)] border-2 border-[var(--theme-light)] rounded-xl px-4 py-5 shadow-sm transition-all"
+            className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[var(--theme-dark)] border-2 border-[var(--theme-light)] rounded-xl px-4 py-5 shadow-sm transition-all"
           >
             <div>
               <span className="font-semibold text-[var(--theme-light)] break-all">
@@ -99,12 +98,20 @@ const LeaseList: React.FC<LeaseListProps> = ({ onSelectSummary }: LeaseListProps
             </div>
             <div className="flex gap-2 mt-3 sm:mt-0 pr-2">
               <button
-                className="bg-[var(--theme-primary)] text-[var(--theme-light)] px-3 py-1 rounded-lg text-xs font-bold hover:bg-[var(--theme-success)] hover:text-[var(--theme-base)] transition-colors"
+                className="bg-[var(--theme-warning)] text-[var(--theme-light)] px-3 py-1 rounded-lg text-xs font-bold hover:bg-[var(--theme-success)] hover:text-[var(--theme-base)] transition"
                 onClick={() => onSelectSummary(lease.id)}
                 disabled={loading}
-                aria-label="Show summary"
+                aria-label="Summary"
               >
                 Summary
+              </button>
+              <button
+                className="bg-[var(--theme-primary)] text-[var(--theme-light)] px-3 py-1 rounded-lg text-xs font-bold hover:bg-[var(--theme-success)] hover:text-[var(--theme-base)] transition-colors"
+                onClick={() => openQuickLook(lease.id, lease.originalFileName)}
+                disabled={loading}
+                aria-label="Quick Look"
+              >
+                Quick Look
               </button>
               <button
                 className="bg-[var(--theme-info)] text-[var(--theme-light)] px-3 py-1 rounded-lg text-xs font-bold hover:bg-[var(--theme-success)] hover:text-[var(--theme-base)] transition-colors"
@@ -128,6 +135,6 @@ const LeaseList: React.FC<LeaseListProps> = ({ onSelectSummary }: LeaseListProps
       </ul>
     </section>
   );
-};
+}
 
 export default LeaseList;
