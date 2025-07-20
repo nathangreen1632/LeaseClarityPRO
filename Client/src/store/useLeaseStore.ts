@@ -25,6 +25,7 @@ interface LeaseStoreState {
   fetchLeases: () => Promise<void>;
   removeLease: (leaseId: number) => Promise<void>;
   fetchLeaseSummary: (leaseId: number) => Promise<void>;
+  clearLeaseSummary: () => void;
   reset: () => void;
 }
 
@@ -211,6 +212,10 @@ export const useLeaseStore = create<LeaseStoreState>((set, _get) => ({
         quickLookSummary: null,
       });
     }
+  },
+
+  clearLeaseSummary: () => {
+    set({ selectedSummary: null, summaryError: null });
   },
 
   reset: (): void => set({ ...initialState }),
