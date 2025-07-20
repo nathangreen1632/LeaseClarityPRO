@@ -5,7 +5,7 @@ import {
   listLeasesController,
   deleteLeaseController,
   downloadLeaseController,
-  humanSummaryController
+  humanSummaryController, askLeaseQuestionController
 } from '../controllers/lease.controller.js';
 import { authenticateJWT } from '../middleware/auth.js';
 import { upload } from '../config/multer.js';
@@ -13,6 +13,8 @@ import { upload } from '../config/multer.js';
 const router: Router = Router();
 
 router.post('/upload', authenticateJWT, upload.single('lease'), uploadLease);
+
+router.post('/:leaseId/ask', authenticateJWT, askLeaseQuestionController);
 
 router.get('/:leaseId/summary/human', authenticateJWT, humanSummaryController);
 
