@@ -133,7 +133,7 @@ ${text}
         message: 'No summary text returned by OpenAI.',
       };
     }
-    const noMarkdown = content
+    const noMarkdown: string = content
       .replace(/[*_`>#-]/g, '')
       .replace(/\n{2,}/g, '\n\n')
       .replace(/ +/g, ' ');
@@ -144,6 +144,59 @@ ${text}
       message: 'OpenAI API call failed.',
       details: apiErr instanceof Error ? apiErr.message : apiErr,
     };
+  }
+};
+
+export const askQuestionAboutLease = async (leaseText: string, question: string) => {
+  const prompt = `
+You are a lease agreement assistant. You will only answer questions based on the lease text.
+
+Do not speculate. If the question is off-topic or irrelevant to leases, reply that you cannot answer.
+
+Please format your answer as follows:
+
+Clause Title:
+Explanation sentence one. Explanation sentence two.
+
+Leave a blank line between each section to separate clauses clearly. Do not use bullet points, numbers, or markdown formatting.
+
+Lease text:
+${leaseText}
+
+Question:
+${question}
+
+Answer:
+`;
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      temperature: 0.4,
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You are a legal assistant that answers only lease-related questions. Format answers with clause titles followed by explanation, with a blank line between sections.',
+        },
+        { role: 'user', content: prompt },
+      ],
+    });
+
+    const rawContent: string | undefined = completion.choices[0].message.content?.trim();
+    if (!rawContent) return { error: true, message: 'No answer returned.' };
+
+    const cleaned: string = rawContent
+      .replace(/[*_`>#]/g, '')
+      .replace(/^\d+\.\s+/gm, '')
+      .replace(/([A-Z][\w/() ]{1,98}):/g, '\n\n$1:')
+      .replace(/\n{3,}/g, '\n\n')
+      .replace(/ +/g, ' ')
+      .trim();
+
+    return { answer: cleaned };
+  } catch (err) {
+    return { error: true, message: 'OpenAI API call failed', details: err };
   }
 };
 
