@@ -64,7 +64,7 @@ function LeaseList({ onSelectSummary }: Readonly<LeaseListProps>) {
 
   return (
     <section className="w-full mt-6">
-      <h2 className="text-3xl text-center font-bold text-[var(--theme-error)] mb-2">Your Leases</h2>
+      <h2 className="text-3xl text-center font-bold text-[var(--theme-error)] mb-6">Your Leases</h2>
 
       {loading && (
         <div className="py-4 text-[var(--theme-accent)] font-semibold animate-pulse">
