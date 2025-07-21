@@ -5,10 +5,10 @@ const openai = new OpenAI({
 });
 
 function extractFirstJsonObject(text: string): string | null {
-  const firstBrace = text.indexOf('{');
+  const firstBrace: number = text.indexOf('{');
   if (firstBrace === -1) return null;
-  let open = 0;
-  for (let i = firstBrace; i < text.length; i++) {
+  let open: number = 0;
+  for (let i: number = firstBrace; i < text.length; i++) {
     if (text[i] === '{') open++;
     if (text[i] === '}') open--;
     if (open === 0) {
@@ -153,12 +153,24 @@ You are a lease agreement assistant. You will only answer questions based on the
 
 Do not speculate. If the question is off-topic or irrelevant to leases, reply that you cannot answer.
 
-Please format your answer as follows:
+Please format your answer in **clearly separated sections**, using this structure:
 
 Clause Title:
 Explanation sentence one. Explanation sentence two.
 
-Leave a blank line between each section to separate clauses clearly. Do not use bullet points, numbers, or markdown formatting.
+If a clause (like "Animals", "Community Policies", "Parking Policies", "Payments", etc...) includes **multiple policies or rules**, split it into **sub-clauses** using appropriate titles like:
+
+Animal Permission:
+[explanation]
+
+Animal Removal:
+[explanation]
+
+Animal Violation Fees:
+[explanation]
+
+Always begin each section with a capitalized title followed by a colon. Leave a **blank line between sections**. This formatting is required so each policy can be shown separately in the UI.
+
 
 Lease text:
 ${leaseText}
@@ -189,7 +201,7 @@ Answer:
     const cleaned: string = rawContent
       .replace(/[*_`>#]/g, '')
       .replace(/^\d+\.\s+/gm, '')
-      .replace(/([A-Z][\w/() ]{1,98}):/g, '\n\n$1:')
+      .replace(/(?:^|\n)([A-Z][\w/()'’\- ]{3,90}):/g, '\n\n$1:')
       .replace(/\n{3,}/g, '\n\n')
       .replace(/ +/g, ' ')
       .trim();
