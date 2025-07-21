@@ -4,5 +4,4 @@ export interface Lease {
   uploadedAt: string;
   filePath?: string;
   userId?: number;
-  // Add any additional fields your backend includes
 }
