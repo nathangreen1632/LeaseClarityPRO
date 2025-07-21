@@ -3,7 +3,6 @@ export interface User {
   email: string;
   firstName?: string;
   lastName?: string;
-  // Add more fields as needed (e.g. roles, avatar, phone)
   createdAt?: string;
   updatedAt?: string;
 }
