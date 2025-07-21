@@ -5,7 +5,6 @@ import { z } from 'zod';
 
 const router: Router = Router();
 
-// Zod schemas for middleware
 const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
