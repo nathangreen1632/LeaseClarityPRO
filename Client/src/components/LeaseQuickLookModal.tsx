@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from "react";
 import Spinner from "./Spinner";
-import LeaseChatbotModal from './LeaseChatbotModal';
 import { useChatStore } from '../store/useChatStore';
 
 interface LeaseQuickLookModalProps {
@@ -27,7 +26,7 @@ function LeaseQuickLookModal(props: Readonly<LeaseQuickLookModalProps>) {
   } = props;
 
   const backdropRef = useRef<HTMLDivElement>(null);
-  const { isOpen, toggle } = useChatStore(); // chat open state
+  const { isOpen, toggle } = useChatStore();
 
   useEffect((): void => {
     if (open && leaseId) {
@@ -133,16 +132,16 @@ function LeaseQuickLookModal(props: Readonly<LeaseQuickLookModalProps>) {
           <div className="flex justify-end">
             <button
               onClick={toggle}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2 rounded-md mb-3"
+              disabled={loading || !summary}
+              className={`font-semibold px-4 py-2 rounded-md mb-3 transition ${
+                loading || !summary
+                  ? 'bg-gray-400 text-white cursor-not-allowed'
+                  : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+              }`}
             >
-              {isOpen ? 'Hide Chatbot' : 'Ask a Question'}
+              {isOpen ? 'Hide Gherin' : 'Ask Gherin'}
             </button>
           </div>
-          {isOpen && leaseId !== null && (
-            <div className="max-h-[400px] overflow-hidden border rounded-md">
-              <LeaseChatbotModal />
-            </div>
-          )}
         </div>
       </div>
     </div>
