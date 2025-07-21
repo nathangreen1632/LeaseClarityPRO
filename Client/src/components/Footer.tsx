@@ -33,15 +33,6 @@ export default function Footer() {
         >
           PyDataPRO
         </a>
-        <span className="text-slate-600">|</span>
-        <a
-          href="https://datenightjar.onrender.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hover:text-[var(--theme-primary)] transition"
-        >
-          Date Night Jar
-        </a>
       </div>
     </footer>
   );
