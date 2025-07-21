@@ -7,7 +7,6 @@ export interface AuthServiceError {
   details?: unknown;
 }
 
-// Find user by email, returns User or null or error object
 export const findUserByEmail = async (
   email: string
 ): Promise<User | null | AuthServiceError> => {
@@ -22,7 +21,6 @@ export const findUserByEmail = async (
   }
 };
 
-// Create user, returns User or error object
 export const createUser = async (
   email: string,
   password: string
@@ -39,7 +37,6 @@ export const createUser = async (
   }
 };
 
-// Validate password, returns true (match), false (no match), or error object
 export const validatePassword = async (
   user: User,
   password: string
