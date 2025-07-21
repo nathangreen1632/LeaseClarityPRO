@@ -12,7 +12,6 @@ export interface LeaseAttributes {
 }
 export interface LeaseCreationAttributes extends Optional<LeaseAttributes, 'id'> {}
 
-// Do NOT declare public class fields!
 export class Lease extends Model<LeaseAttributes, LeaseCreationAttributes> {}
 
 Lease.init(
@@ -43,7 +42,6 @@ Lease.init(
   }
 );
 
-// For TypeScript: tell it these fields exist!
 export interface Lease extends LeaseAttributes {}
 
 User.hasMany(Lease, { foreignKey: 'userId' });
