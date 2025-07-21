@@ -2,8 +2,8 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __filename: string = fileURLToPath(import.meta.url);
+const __dirname: string = path.dirname(__filename);
 
 if (process.env.RENDER === undefined) {
   const result = dotenv.config({
@@ -17,13 +17,13 @@ if (process.env.RENDER === undefined) {
   }
 }
 
-const REQUIRED_ENV = [
+const REQUIRED_ENV: string[] = [
   'DATABASE_URL',
   'JWT_SECRET',
   'OPENAI_API_KEY',
 ];
 
-const missingVars = REQUIRED_ENV.filter((v) => !process.env[v]);
+const missingVars: string[] = REQUIRED_ENV.filter((v: string): boolean => !process.env[v]);
 if (missingVars.length) {
   // eslint-disable-next-line no-console
   console.error(
