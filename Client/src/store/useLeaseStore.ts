@@ -18,8 +18,8 @@ interface LeaseStoreState {
   quickLookError: string | null;
   leaseFileName?: string | null;
 
-  uploading: boolean; // ✅ NEW
-  setUploading: (value: boolean) => void; // ✅ NEW
+  uploading: boolean;
+  setUploading: (value: boolean) => void;
 
   openQuickLook: (leaseId: number, leaseFileName?: string) => void;
   closeQuickLook: () => void;
@@ -45,16 +45,16 @@ const initialState = {
   quickLookLoading: false,
   quickLookError: null,
   leaseFileName: null,
-  uploading: false, // ✅ NEW
+  uploading: false,
 };
 
 export const useLeaseStore = create<LeaseStoreState>((set, _get) => ({
   ...initialState,
 
-  setUploading: (value: boolean) => set({ uploading: value }), // ✅ NEW
+  setUploading: (value: boolean) => set({ uploading: value }),
 
   fetchLeases: async (): Promise<void> => {
-    const token = useAuthStore.getState().token ?? localStorage.getItem('token');
+    const token: string | null = useAuthStore.getState().token ?? localStorage.getItem('token');
 
     set({ loading: true, error: null });
     try {
@@ -111,7 +111,7 @@ export const useLeaseStore = create<LeaseStoreState>((set, _get) => ({
         return;
       }
       set((state: LeaseStoreState): { leases: Lease[]; loading: false } => ({
-        leases: state.leases.filter((l) => l.id !== leaseId),
+        leases: state.leases.filter((l): boolean => l.id !== leaseId),
         loading: false,
       }));
     } catch (err: unknown) {
@@ -162,7 +162,7 @@ export const useLeaseStore = create<LeaseStoreState>((set, _get) => ({
     }
   },
 
-  openQuickLook: (leaseId: number, leaseFileName?: string) => {
+  openQuickLook: (leaseId: number, leaseFileName?: string): void => {
     set({
       quickLookOpen: true,
       quickLookLeaseId: leaseId,
@@ -173,7 +173,7 @@ export const useLeaseStore = create<LeaseStoreState>((set, _get) => ({
     });
   },
 
-  closeQuickLook: () => {
+  closeQuickLook: (): void => {
     set({
       quickLookOpen: false,
       quickLookLeaseId: null,
@@ -220,7 +220,7 @@ export const useLeaseStore = create<LeaseStoreState>((set, _get) => ({
     }
   },
 
-  clearLeaseSummary: () => {
+  clearLeaseSummary: (): void => {
     set({ selectedSummary: null, summaryError: null });
   },
 
