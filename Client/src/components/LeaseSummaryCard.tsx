@@ -1,6 +1,5 @@
 import React from "react";
 
-// Expanded LeaseSummary interface with new fields.
 export interface LeaseSummary {
   rent: string;
   leaseStartDate: string;
@@ -33,6 +32,8 @@ export interface LeaseSummary {
   quarterlyInspection?: string;
   showingsNotice?: string;
   cashPaymentAllowed?: string;
+  trashRemovalFee?: number;
+  trashAdminFee?: number;
   [key: string]: any;
 }
 
@@ -41,14 +42,13 @@ interface LeaseSummaryCardProps {
   error?: string;
 }
 
-// Fields to treat as currency
 const CURRENCY_FIELDS: string[] = [
   'rent', 'securityDeposit', 'animalDeposit', 'petRent',
   'petViolationFee', 'returnedCheckFee', 'applicationFee', 'adminFee',
-  'expediteFee', 'amendmentFee', 'hoaFee', 'evaluationFee', 'initial', 'daily',
+  'expediteFee', 'amendmentFee', 'hoaFee', 'evaluationFee', 'initial',
+  'daily', 'trashRemovalFee', 'trashAdminFee', 'insuranceMinimum'
 ];
 
-// Currency formatting helper
 function formatCurrency(value: any): any {
   if (value == null || value === '') return '';
   let num = typeof value === 'string' ? value.replace(/[$,]/g, '') : value;
@@ -57,7 +57,6 @@ function formatCurrency(value: any): any {
   return parsed.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
 }
 
-// Main fields
 const FIELDS: {key: string; label: string}[] = [
   { key: 'rent', label: 'Monthly Rent' },
   { key: 'leaseStartDate', label: 'Lease Start Date' },
@@ -79,6 +78,8 @@ const FIELDS: {key: string; label: string}[] = [
   { key: 'insuranceMinimum', label: 'Insurance Minimum Coverage' },
   { key: 'utilitiesTenant', label: 'Utilities Paid by Tenant' },
   { key: 'utilitiesLandlord', label: 'Utilities Paid by Landlord' },
+  { key: 'trashRemovalFee', label: 'Trash Removal Fee' },
+  { key: 'trashAdminFee', label: 'Trash Admin Fee' },
   { key: 'returnedCheckFee', label: 'Returned Check Fee' },
   { key: 'applicationFee', label: 'Application Fee' },
   { key: 'adminFee', label: 'Admin/Move-in Fee' },
@@ -113,6 +114,8 @@ const SUMMARY_KEY_MAP: Record<string, string> = {
   'Insurance Minimum Coverage': 'insuranceMinimum',
   'Utilities Paid by Tenant': 'utilitiesTenant',
   'Utilities Paid by Landlord': 'utilitiesLandlord',
+  'Trash Removal Fee': 'trashRemovalFee',
+  'Trash Admin Fee': 'trashAdminFee',
   'Returned Check Fee': 'returnedCheckFee',
   'Application Fee': 'applicationFee',
   'Admin/Move-in Fee': 'adminFee',
@@ -128,7 +131,17 @@ const SUMMARY_KEY_MAP: Record<string, string> = {
 
 const BUBBLE_UP_FIELDS: { parent: string; child: string; to: string }[] = [
   { parent: 'petPolicy', child: 'Pet Violation Fee', to: 'petViolationFee' },
-  // Add more here for other fields as needed, e.g. { parent: 'lateFees', child: 'Daily Fee', to: 'lateFeeDaily' }
+  { parent: 'lateFees', child: 'Initial Fee', to: 'lateFeeInitial' },
+  { parent: 'lateFees', child: 'Daily Fee', to: 'lateFeeDaily' },
+  { parent: 'animalAgreement', child: 'Animal Deposit', to: 'animalDeposit' },
+  { parent: 'animalAgreement', child: 'Pet Rent', to: 'petRent' },
+  { parent: 'animalAgreement', child: 'Pet Violation Fee', to: 'petViolationFee' },
+  { parent: 'utilitiesTenant', child: 'Utilities Paid by Tenant', to: 'utilitiesTenant' },
+  { parent: 'utilitiesLandlord', child: 'Utilities Paid by Landlord', to: 'utilitiesLandlord' },
+  { parent: 'vehicles', child: 'Vehicles Allowed', to: 'vehicles' },
+  { parent: 'animalAgreement', child: 'Animals Allowed', to: 'animalAgreement' },
+  { parent: 'trashRemovalFee', child: 'Trash Removal Fee', to: 'trashRemovalFee' },
+  { parent: 'trashAdminFee', child: 'Trash Admin Fee', to: 'trashAdminFee' }
 ];
 
 function normalizeSummary(rawSummary: Record<string, unknown>): LeaseSummary {
