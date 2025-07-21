@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import Spinner from "./Spinner";
+import { useChatStore } from '../store/useChatStore';
 
 interface LeaseQuickLookModalProps {
   leaseId: number | null;
@@ -25,6 +26,7 @@ function LeaseQuickLookModal(props: Readonly<LeaseQuickLookModalProps>) {
   } = props;
 
   const backdropRef = useRef<HTMLDivElement>(null);
+  const { isOpen, toggle } = useChatStore();
 
   useEffect((): void => {
     if (open && leaseId) {
@@ -44,7 +46,7 @@ function LeaseQuickLookModal(props: Readonly<LeaseQuickLookModalProps>) {
     };
   }, [open]);
 
-  useEffect(() => {
+  useEffect((): void => {
     if (open && backdropRef.current) {
       backdropRef.current.focus();
     }
@@ -124,6 +126,22 @@ function LeaseQuickLookModal(props: Readonly<LeaseQuickLookModalProps>) {
           className="max-h-[60vh] overflow-y-auto whitespace-pre-wrap text-base sm:text-lg leading-relaxed text-[var(--theme-light)]"
         >
           {content}
+        </div>
+
+        <div className="mt-6 border-t border-[var(--theme-primary)] pt-4">
+          <div className="flex justify-end">
+            <button
+              onClick={toggle}
+              disabled={loading || !summary}
+              className={`font-semibold px-4 py-2 rounded-md mb-3 transition ${
+                loading || !summary
+                  ? 'bg-gray-400 text-white cursor-not-allowed'
+                  : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+              }`}
+            >
+              {isOpen ? 'Hide Gherin' : 'Ask Gherin'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

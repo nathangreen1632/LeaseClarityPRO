@@ -1,7 +1,6 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../config/db.js";
 
-// TypeScript interfaces
 export interface UserAttributes {
   id: number;
   email: string;
@@ -14,12 +13,8 @@ export interface UserAttributes {
 
 export interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
 
-// Class for typing — DO NOT declare class fields!
 export class User extends Model<UserAttributes, UserCreationAttributes>
   implements UserAttributes {
-  // Only declare these for type-checking, not as class fields!
-  // Remove all lines like "public id!: number;".
-  // The following line is a type-only annotation, does NOT emit runtime property:
   declare id: number;
   declare email: string;
   declare passwordHash: string;

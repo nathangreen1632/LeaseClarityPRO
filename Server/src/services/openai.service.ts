@@ -5,10 +5,10 @@ const openai = new OpenAI({
 });
 
 function extractFirstJsonObject(text: string): string | null {
-  const firstBrace = text.indexOf('{');
+  const firstBrace: number = text.indexOf('{');
   if (firstBrace === -1) return null;
-  let open = 0;
-  for (let i = firstBrace; i < text.length; i++) {
+  let open: number = 0;
+  for (let i: number = firstBrace; i < text.length; i++) {
     if (text[i] === '{') open++;
     if (text[i] === '}') open--;
     if (open === 0) {
@@ -133,7 +133,7 @@ ${text}
         message: 'No summary text returned by OpenAI.',
       };
     }
-    const noMarkdown = content
+    const noMarkdown: string = content
       .replace(/[*_`>#-]/g, '')
       .replace(/\n{2,}/g, '\n\n')
       .replace(/ +/g, ' ');
@@ -144,6 +144,71 @@ ${text}
       message: 'OpenAI API call failed.',
       details: apiErr instanceof Error ? apiErr.message : apiErr,
     };
+  }
+};
+
+export const askQuestionAboutLease = async (leaseText: string, question: string) => {
+  const prompt = `
+You are a lease agreement assistant. You will only answer questions based on the lease text.
+
+Do not speculate. If the question is off-topic or irrelevant to leases, reply that you cannot answer.
+
+Please format your answer in **clearly separated sections**, using this structure:
+
+Clause Title:
+Explanation sentence one. Explanation sentence two.
+
+If a clause (like "Animals", "Community Policies", "Parking Policies", "Payments", etc...) includes **multiple policies or rules**, split it into **sub-clauses** using appropriate titles like:
+
+Animal Permission:
+[explanation]
+
+Animal Removal:
+[explanation]
+
+Animal Violation Fees:
+[explanation]
+
+Always begin each section with a capitalized title followed by a colon. Leave a **blank line between sections**. This formatting is required so each policy can be shown separately in the UI.
+
+
+Lease text:
+${leaseText}
+
+Question:
+${question}
+
+Answer:
+`;
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      temperature: 0.4,
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You are a legal assistant that answers only lease-related questions. Format answers with clause titles followed by explanation, with a blank line between sections.',
+        },
+        { role: 'user', content: prompt },
+      ],
+    });
+
+    const rawContent: string | undefined = completion.choices[0].message.content?.trim();
+    if (!rawContent) return { error: true, message: 'No answer returned.' };
+
+    const cleaned: string = rawContent
+      .replace(/[*_`>#]/g, '')
+      .replace(/^\d+\.\s+/gm, '')
+      .replace(/(?:^|\n)([A-Z][\w/()'’\- ]{3,90}):/g, '\n\n$1:')
+      .replace(/\n{3,}/g, '\n\n')
+      .replace(/ +/g, ' ')
+      .trim();
+
+    return { answer: cleaned };
+  } catch (err) {
+    return { error: true, message: 'OpenAI API call failed', details: err };
   }
 };
 

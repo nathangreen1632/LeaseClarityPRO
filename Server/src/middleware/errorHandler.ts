@@ -3,10 +3,10 @@ import { logger } from '../config/logger.js';
 
 export const errorHandler = (
   err: any,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
-) => {
+  _next: NextFunction
+): void => {
   logger.error(err);
   res.status(500).json({ error: 'Internal server error' });
 };

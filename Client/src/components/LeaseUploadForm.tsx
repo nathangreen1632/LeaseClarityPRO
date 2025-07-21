@@ -12,7 +12,7 @@ export default function LeaseUploadForm({ onUploadSuccess }: Readonly<LeaseUploa
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  const token: string | null = useAuthStore((state) => state.token) ?? localStorage.getItem('token');
+  const token: string | null = useAuthStore((state): string | null => state.token) ?? localStorage.getItem('token');
 
   const onDrop: (acceptedFiles: File[]) => Promise<void> = useCallback(async (acceptedFiles: File[]): Promise<void> => {
     setError(null);

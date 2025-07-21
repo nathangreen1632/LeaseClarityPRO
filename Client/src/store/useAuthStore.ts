@@ -5,7 +5,7 @@ import {useLeaseStore} from "./useLeaseStore.ts";
 function getStoredAuth(): { token: string | null; user: AuthResponse['user'] | null } {
   const token: string | null = localStorage.getItem('token');
   const userRaw: string | null = localStorage.getItem('user');
-  let user = null;
+  let user: any = null;
   try {
     if (userRaw) user = JSON.parse(userRaw);
   } catch {}
@@ -30,7 +30,7 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
   login: async (creds: AuthCredentials): Promise<void> => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch('/api/auth/login', {
+      const res: Response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(creds),

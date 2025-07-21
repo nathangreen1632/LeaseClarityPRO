@@ -1,9 +1,10 @@
+import { useEffect } from 'react';
 import LeaseList from '../pages/LeaseList.js';
 import LeaseSummaryCard from '../components/LeaseSummaryCard.js';
 import Spinner from '../components/Spinner.js';
 import { useLeaseStore } from '../store/useLeaseStore.js';
 import { toast } from 'react-hot-toast';
-import LeaseQuickLookModal from '../components/LeaseQuickLookModal';
+import LeaseQuickLookModal from '../components/LeaseQuickLookModal.js';
 
 export default function Home() {
   const {
@@ -11,7 +12,6 @@ export default function Home() {
     summaryLoading,
     summaryError,
     fetchLeaseSummary,
-
     quickLookOpen,
     quickLookLeaseId,
     quickLookSummary,
@@ -31,6 +31,12 @@ export default function Home() {
     }
   };
 
+  useEffect((): () => void => {
+    return (): void => {
+      useLeaseStore.getState().clearLeaseSummary();
+    };
+  }, []);
+
   return (
     <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 md:px-6 py-4">
       <LeaseList onSelectSummary={handleSelectSummary} />
@@ -39,8 +45,8 @@ export default function Home() {
           <div className="flex flex-col justify-center items-center py-8 gap-3">
             <Spinner size={48} color="var(--theme-error)" />
             <span className="text-[var(--theme-light)] font-bold mt-2">
-            Loading Summary...
-          </span>
+              Loading Summary...
+            </span>
           </div>
         )}
         {summaryError && (

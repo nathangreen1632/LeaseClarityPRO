@@ -1,27 +1,25 @@
-import multer from 'multer';
+import multer, {Multer, StorageEngine} from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { randomUUID } from 'crypto';
 
-// Polyfill __dirname for ES modules:
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __filename: string = fileURLToPath(import.meta.url);
+const __dirname: string = path.dirname(__filename);
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+const storage: StorageEngine = multer.diskStorage({
+  destination: (_req, _file, cb): void => {
     cb(null, path.resolve(__dirname, '../../uploads'));
   },
-  filename: (req, file, cb) => {
-    // Use a UUID + timestamp for uniqueness and security
+  filename: (_req, file, cb): void => {
     const uniqueSuffix = `${Date.now()}-${randomUUID()}`;
     cb(null, uniqueSuffix + '-' + file.originalname);
   },
 });
 
-export const upload = multer({
+export const upload: Multer = multer({
   storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
-  fileFilter: (req, file, cb) => {
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, cb): void => {
     if (file.mimetype !== 'application/pdf') {
       return cb(new Error('Only PDF files are allowed'));
     }

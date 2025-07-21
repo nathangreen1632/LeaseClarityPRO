@@ -24,7 +24,7 @@ export type JwtVerifyResult = AuthJwtPayload | JwtError;
 
 export const signJwt: (payload: AuthJwtPayload, expiresIn?: ExpiresInValue) => JwtSignResult = (
   payload: AuthJwtPayload,
-  expiresIn: ExpiresInValue = '2h'
+  expiresIn: ExpiresInValue = '6h'
 ): JwtSignResult => {
   if (!JWT_SECRET) {
     return {

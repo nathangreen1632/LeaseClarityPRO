@@ -3,7 +3,7 @@ import path from 'path';
 import { Lease } from '../models/index.js';
 import { AuthRequest } from '../middleware/auth.js';
 import { extractTextFromPDF } from '../services/pdf.service.js';
-import {humanReadableLeaseSummary, summarizeLease} from '../services/openai.service.js';
+import {askQuestionAboutLease, humanReadableLeaseSummary, summarizeLease} from '../services/openai.service.js';
 import {getAllLeasesForUser, LeaseServiceError} from '../services/lease.service.js';
 
 export const uploadLease = async (req: AuthRequest, res: Response) => {
@@ -131,7 +131,7 @@ export const downloadLeaseController = async (req: AuthRequest, res: Response): 
     res.download(
       path.resolve(lease.filePath),
       lease.originalFileName,
-      (err) => {
+      (err: Error): void => {
         if (err && !res.headersSent) {
           res.status(500).json({ error: 'Failed to download lease.', details: err.message });
         }
@@ -178,4 +178,39 @@ export const humanSummaryController = async (req: AuthRequest, res: Response) =>
     console.error('Error generating human-friendly summary:', err);
     return res.status(500).json({ error: 'Failed to generate human-friendly summary' });
   }
+};
+
+export const askLeaseQuestionController = async (req: AuthRequest, res: Response) => {
+  const { leaseId } = req.params;
+  const { question } = req.body;
+
+  if (!question || typeof question !== 'string') {
+    return res.status(400).json({ error: 'Invalid or missing question' });
+  }
+
+  if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
+
+  const disallowed: string[] = ['bitcoin', 'kill', 'sex', 'game', 'restaurant'];
+  const isAbusive = disallowed.some(term => question.toLowerCase().includes(term));
+  if (isAbusive) {
+    return res.status(400).json({ error: 'Your question appears unrelated to a lease.' });
+  }
+
+  const lease: Lease | null = await Lease.findOne({ where: { id: leaseId, userId: req.user.userId } });
+  if (!lease?.filePath) {
+    return res.status(404).json({ error: 'Lease not found' });
+  }
+
+  const result = await extractTextFromPDF(lease.filePath);
+  if (!result.success) {
+    return res.status(422).json({ error: result.error });
+  }
+
+  const response = await askQuestionAboutLease(result.text, question);
+
+  if (response.error) {
+    return res.status(502).json({ error: response.message });
+  }
+
+  return res.status(200).json({ answer: response.answer });
 };

@@ -8,7 +8,7 @@ type ExtractTextResult =
   | { success: false; error: string; details?: unknown };
 
 export const extractTextFromPDF = async (filePath: string): Promise<ExtractTextResult> => {
-  if (!filePath || typeof filePath !== 'string') {
+  if (!filePath) {
     const msg = 'Invalid or missing file path for PDF.';
     console.error('extractTextFromPDF:', msg, filePath);
     return { success: false, error: msg };
@@ -32,11 +32,11 @@ export const extractTextFromPDF = async (filePath: string): Promise<ExtractTextR
     return { success: false, error: msg, details: err };
   }
 
-  let text = '';
+  let text: string = '';
   try {
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
+    for (let i: number = 1; i <= pdf.numPages; i++) {
+      const page: any = await pdf.getPage(i);
+      const content: any = await page.getTextContent();
       text += content.items.map((item: any) => item.str).join(' ') + '\n';
     }
     return { success: true, text };

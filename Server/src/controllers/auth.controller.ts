@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { User } from '../models/index.js';
 import bcrypt from 'bcrypt';
 import { z } from 'zod';
-import { signJwt } from '../config/jwt.js'; // <-- Use your jwt helper
+import {JwtSignResult, signJwt} from '../config/jwt.js'; // <-- Use your jwt helper
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -18,13 +18,12 @@ export const register = async (req: Request, res: Response) => {
       return res.status(400).json({ error: parsed.error.flatten() });
     }
     const { email, password, firstName, lastName } = parsed.data;
-    const existing = await User.findOne({ where: { email } });
+    const existing: User | null = await User.findOne({ where: { email } });
     if (existing) return res.status(409).json({ error: 'Email already exists' });
-    const passwordHash = await bcrypt.hash(password, 10);
-    const user = await User.create({ email, passwordHash, firstName, lastName });
+    const passwordHash: string = await bcrypt.hash(password, 10);
+    const user: User = await User.create({ email, passwordHash, firstName, lastName });
 
-    // Issue JWT on registration using signJwt
-    const token = signJwt({ userId: user.id, email: user.email }, '2h');
+    const token: JwtSignResult = signJwt({ userId: user.id, email: user.email }, '6h');
     if (typeof token !== 'string') {
       return res.status(500).json({ error: token.message });
     }
@@ -56,12 +55,12 @@ export const login = async (req: Request, res: Response) => {
       return res.status(400).json({ error: parsed.error.flatten() });
     }
     const { email, password } = parsed.data;
-    const user = await User.findOne({ where: { email } });
+    const user: User | null = await User.findOne({ where: { email } });
     if (!user) return res.status(401).json({ error: 'Invalid credentials' });
-    const valid = await bcrypt.compare(password, user.passwordHash);
+    const valid: boolean = await bcrypt.compare(password, user.passwordHash);
     if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
 
-    const token = signJwt({ userId: user.id, email: user.email }, '2h');
+    const token: JwtSignResult = signJwt({ userId: user.id, email: user.email }, '6h');
     if (typeof token !== 'string') {
       return res.status(500).json({ error: token.message });
     }
