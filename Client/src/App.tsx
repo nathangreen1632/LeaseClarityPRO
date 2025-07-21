@@ -1,16 +1,16 @@
 import { BrowserRouter } from 'react-router-dom';
-import Navbar from './components/Navbar.js';
-import AppRoutes from './AppRoutes.js';
-import Footer from "./components/Footer.js";
-import LeaseChatbotModal from "./components/LeaseChatbotModal.tsx";
+import Navbar from './components/Navbar';
+import AppRoutes from './AppRoutes';
+import Footer from './components/Footer';
+import LeaseChatbotModal from './components/LeaseChatbotModal';
 
 export default function App() {
   return (
     <BrowserRouter>
       <Navbar />
       <AppRoutes />
-      <LeaseChatbotModal />
       <Footer />
+      <LeaseChatbotModal />
     </BrowserRouter>
   );
 }
