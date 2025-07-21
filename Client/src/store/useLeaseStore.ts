@@ -18,6 +18,9 @@ interface LeaseStoreState {
   quickLookError: string | null;
   leaseFileName?: string | null;
 
+  uploading: boolean; // ✅ NEW
+  setUploading: (value: boolean) => void; // ✅ NEW
+
   openQuickLook: (leaseId: number, leaseFileName?: string) => void;
   closeQuickLook: () => void;
   fetchQuickLookSummary: (leaseId: number) => Promise<void>;
@@ -42,10 +45,13 @@ const initialState = {
   quickLookLoading: false,
   quickLookError: null,
   leaseFileName: null,
+  uploading: false, // ✅ NEW
 };
 
 export const useLeaseStore = create<LeaseStoreState>((set, _get) => ({
   ...initialState,
+
+  setUploading: (value: boolean) => set({ uploading: value }), // ✅ NEW
 
   fetchLeases: async (): Promise<void> => {
     const token = useAuthStore.getState().token ?? localStorage.getItem('token');
