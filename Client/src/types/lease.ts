@@ -4,4 +4,5 @@ export interface Lease {
   uploadedAt: string;
   filePath?: string;
   userId?: number;
+  parsedText?: string;
 }
