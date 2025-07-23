@@ -142,11 +142,13 @@ export const useLeaseStore = create<LeaseStoreState>((set, _get) => ({
           summaryError: data?.error ?? 'Failed to fetch summary.',
           summaryLoading: false,
           selectedSummary: null,
+          leaseFileName: null,
         });
         return;
       }
       set({
         selectedSummary: data.summary,
+        leaseFileName: data.leaseFileName ?? null,
         summaryLoading: false,
         summaryError: null,
       });
