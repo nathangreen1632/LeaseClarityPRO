@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import {Link, type NavigateFunction, useNavigate} from 'react-router-dom';
+import { Link, type NavigateFunction, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { Menu, X } from 'lucide-react';
 
@@ -33,6 +33,12 @@ function Navbar() {
               className="text-white font-semibold text-base hover:text-[var(--theme-primary)] transition"
             >
               Dashboard
+            </Link>
+            <Link
+              to="/lease-review"
+              className="text-white font-semibold text-base hover:text-[var(--theme-primary)] transition"
+            >
+              Tenant Rights
             </Link>
             <Link
               to="/upload"
@@ -80,6 +86,13 @@ function Navbar() {
                 onClick={(): void => setMenuOpen(false)}
               >
                 Dashboard
+              </Link>
+              <Link
+                to="/lease-review"
+                className="block w-full text-center text-[var(--theme-light)] font-semibold text-lg hover:text-[var(--theme-primary)] transition"
+                onClick={(): void => setMenuOpen(false)}
+              >
+                Tenant Rights
               </Link>
               <Link
                 to="/upload"
