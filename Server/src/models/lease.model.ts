@@ -6,6 +6,7 @@ export interface LeaseAttributes {
   id: number;
   filePath: string;
   originalFileName: string;
+  parsedText?: string | null;
   userId: number;
   createdAt?: Date;
   updatedAt?: Date;
@@ -28,6 +29,10 @@ Lease.init(
     originalFileName: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    parsedText: {
+      type: DataTypes.TEXT,
+      allowNull: true, // or false if required
     },
     userId: {
       type: DataTypes.INTEGER,
