@@ -7,7 +7,7 @@ import type { TenantRightsAnalysis, TenantRightsConcern } from '../types/rights'
 import Spinner from "../components/Spinner";
 
 function LeaseReview() {
-  const { analysis, setAnalysis, setBills } = useRightsStore();
+  const { analysis, setAnalysis, setBills, clearRightsAnalysis } = useRightsStore();
   const {
     leases,
     fetchLeases,
@@ -30,6 +30,7 @@ function LeaseReview() {
 
       setLoading(true);
       clearLeaseSummary();
+      clearRightsAnalysis();
 
       try {
         const res = await fetch('/api/rights/analyze-ai', {
@@ -75,6 +76,13 @@ function LeaseReview() {
       void fetchRightsData();
     }
   }, [selectedLeaseId, leases, token, setAnalysis, setBills, clearLeaseSummary]);
+
+  useEffect(() => {
+    return () => {
+      clearRightsAnalysis();
+    };
+  }, []);
+
 
   return (
     <div className="p-6 text-red-500 max-w-4xl mx-auto">
