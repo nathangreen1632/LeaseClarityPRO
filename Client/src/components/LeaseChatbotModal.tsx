@@ -158,7 +158,7 @@ export default function LeaseChatbotModal() {
 
       <div
         ref={containerRef}
-        className="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-slate-300 rounded-b-lg ring-1 ring-inset ring-gray-100 shadow-inner"
+        className="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-slate-300 rounded-b-lg ring-1 ring-inset ring-gray-100 shadow-inner custom-scrollbar"
       >
         {renderMessages.map((msg, index) => {
           let baseClasses: string = 'p-2 rounded-lg shadow max-w-[80%] break-words transition-opacity duration-1000';
