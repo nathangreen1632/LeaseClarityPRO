@@ -1,4 +1,11 @@
-import { OpenAI } from 'openai';
+import {OpenAI} from 'openai';
+
+type TenantRightsConcern = {
+  category: string;
+  issue: string;
+  severity?: 'low' | 'medium' | 'high';
+  sourceClause?: string;
+};
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -209,6 +216,115 @@ Answer:
     return { answer: cleaned };
   } catch (err) {
     return { error: true, message: 'OpenAI API call failed', details: err };
+  }
+};
+
+export const analyzeLegalConcerns = async (
+  leaseText: string,
+  state: string
+): Promise<TenantRightsConcern[]> => {
+  const prompt = `
+You are an expert in U.S. tenant rights, lease law, and landlord-tenant power imbalances.
+
+Your job is to analyze the following residential lease agreement and list **every clause, statement, or requirement** that:
+
+- Violates or appears to violate tenant rights in the state of ${state}
+- Shifts legal or financial risk unfairly onto the tenant
+- Grants excessive power or discretion to the landlord
+- Imposes excessive fees, unclear penalties, or restrictive requirements
+- Uses vague, misleading, or coercive language
+- Reduces tenant privacy, autonomy, or access to justice
+
+🚨 You must be THOROUGH. Identify **all potential issues**, even if minor. This may include:
+- Privacy violations (e.g., forced showings, quarterly inspections)
+- Nonrefundable or deceptive fees (e.g., application, expedite, admin, pet)
+- One-sided indemnification clauses
+- Arbitrary pet or guest restrictions
+- Unclear lease termination penalties
+- Mandatory services that may not be legally enforceable
+- Waivers of landlord liability or tenant legal rights
+
+📌 Format your response as a JSON array of objects, each with a "category" and an "issue" field. Be specific and consistent with category labels.
+
+Only include actual written clauses or inferred implications from the lease. Do not speculate or generalize. Do not use numbers or bullet symbols.
+
+Example format:
+[
+  {
+    "category": "Excessive Fee",
+    "issue": "Late fees of $100 initial and $75 per day are excessive and may violate state laws."
+  },
+  {
+    "category": "Privacy Violation",
+    "issue": "Quarterly inspections may infringe on tenant privacy without cause."
+  }
+]
+
+Lease:
+${leaseText}
+`;
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      temperature: 0.5,
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You are an expert on U.S. tenant rights and lease violations. Be extremely thorough and risk-aware in all responses.',
+        },
+        { role: 'user', content: prompt },
+      ],
+    });
+
+    const raw = completion.choices?.[0]?.message?.content?.trim() || '';
+
+    if (!raw) {
+      console.error('❌ OpenAI returned an empty response.');
+      return [
+        {
+          category: 'Error',
+          issue: 'No response received from AI.',
+        },
+      ];
+    }
+
+    const firstBracket = raw.indexOf('[');
+    const lastBracket = raw.lastIndexOf(']');
+
+    if (firstBracket === -1 || lastBracket === -1 || firstBracket > lastBracket) {
+      console.error('❌ Could not locate valid JSON array in OpenAI response:', raw);
+      return [
+        {
+          category: 'Error',
+          issue: 'AI returned invalid format. Please try again.',
+        },
+      ];
+    }
+
+    const jsonStr = raw.slice(firstBracket, lastBracket + 1);
+
+    try {
+      const parsed: TenantRightsConcern[] = JSON.parse(jsonStr);
+      return parsed.filter((item) => item.category && item.issue);
+    } catch (parseErr) {
+      console.error('❌ JSON parsing failed. Raw content:', jsonStr);
+      return [
+        {
+          category: 'Error',
+          issue: 'Unable to parse AI response. Try regenerating.',
+        },
+      ];
+    }
+  } catch (err) {
+    console.error('❌ OpenAI request failed in analyzeLegalConcerns:', err);
+    return [
+      {
+        category: 'Error',
+        issue: 'Error communicating with AI. Please try again later.',
+      },
+    ];
   }
 };
 
