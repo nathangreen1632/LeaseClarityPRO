@@ -77,7 +77,7 @@ ${text}
 `;
   try {
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: 'You extract structured data from lease agreements.' },
         { role: 'user', content: prompt },
@@ -85,33 +85,28 @@ ${text}
       temperature: 0.2,
     });
 
-    const content: string | null = completion.choices[0].message.content;
-    let cleanedContent: string = (content ?? '').replace(/```(?:json)?/gi, '').trim();
-    const jsonStr: string | null = extractFirstJsonObject(cleanedContent);
+    const content: string | null = completion.choices[0]?.message?.content ?? '';
+    const cleaned = content.replace(/```(?:json)?/gi, '').trim();
 
+    const jsonStr = extractFirstJsonObject(cleaned);
     if (!jsonStr) {
-      return {
-        error: true,
-        message: 'No JSON found in model response.',
-        raw: content,
-      };
+      console.error('❌ No JSON object found in OpenAI response.');
+      return { error: true, message: 'No valid JSON found in response.', raw: content };
     }
 
     try {
       return JSON.parse(jsonStr);
     } catch (parseErr) {
-      console.error('Error parsing JSON from AI response:', parseErr, jsonStr);
-      return {
-        error: true,
-        message: 'Failed to parse AI response as JSON.',
-        raw: content,
-      };
+      console.error('❌ JSON parsing failed:', parseErr);
+      console.error('❌ Raw content:', jsonStr);
+      return { error: true, message: 'Failed to parse response as JSON.', raw: content };
     }
-  } catch (apiErr) {
+  } catch (err) {
+    console.error('❌ OpenAI request failed in summarizeLease:', err);
     return {
       error: true,
       message: 'OpenAI API call failed.',
-      details: apiErr instanceof Error ? apiErr.message : apiErr,
+      details: err instanceof Error ? err.message : err,
     };
   }
 };
@@ -125,7 +120,7 @@ ${text}
 `;
   try {
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: 'You summarize leases for tenants in plain language.' },
         { role: 'user', content: prompt },
@@ -133,23 +128,25 @@ ${text}
       temperature: 0.4,
     });
 
-    const content: string | undefined = completion.choices[0].message.content?.trim();
-    if (!content) {
-      return {
-        error: true,
-        message: 'No summary text returned by OpenAI.',
-      };
+    const raw = completion.choices[0]?.message?.content?.trim() ?? '';
+    if (!raw) {
+      console.error('❌ No summary returned by OpenAI.');
+      return { error: true, message: 'No summary text returned by AI.' };
     }
-    const noMarkdown: string = content
+
+    const cleaned = raw
       .replace(/[*_`>#-]/g, '')
       .replace(/\n{2,}/g, '\n\n')
-      .replace(/ +/g, ' ');
-    return { summary: noMarkdown.trim() };
-  } catch (apiErr) {
+      .replace(/ +/g, ' ')
+      .trim();
+
+    return { summary: cleaned };
+  } catch (err) {
+    console.error('❌ OpenAI request failed in humanReadableLeaseSummary:', err);
     return {
       error: true,
       message: 'OpenAI API call failed.',
-      details: apiErr instanceof Error ? apiErr.message : apiErr,
+      details: err instanceof Error ? err.message : err,
     };
   }
 };
@@ -202,10 +199,13 @@ Answer:
       ],
     });
 
-    const rawContent: string | undefined = completion.choices[0].message.content?.trim();
-    if (!rawContent) return { error: true, message: 'No answer returned.' };
+    const rawContent = completion.choices[0]?.message?.content?.trim();
+    if (!rawContent) {
+      console.error('❌ No answer returned by OpenAI.');
+      return { error: true, message: 'No answer returned.' };
+    }
 
-    const cleaned: string = rawContent
+    const cleaned = rawContent
       .replace(/[*_`>#]/g, '')
       .replace(/^\d+\.\s+/gm, '')
       .replace(/(?:^|\n)([A-Z][\w/()'’\- ]{3,90}):/g, '\n\n$1:')
@@ -215,7 +215,12 @@ Answer:
 
     return { answer: cleaned };
   } catch (err) {
-    return { error: true, message: 'OpenAI API call failed', details: err };
+    console.error('❌ OpenAI request failed in askQuestionAboutLease:', err);
+    return {
+      error: true,
+      message: 'OpenAI API call failed.',
+      details: err instanceof Error ? err.message : err,
+    };
   }
 };
 
@@ -278,7 +283,7 @@ ${leaseText}
       ],
     });
 
-    const raw = completion.choices?.[0]?.message?.content?.trim() || '';
+    const raw = completion.choices?.[0]?.message?.content?.trim() ?? '';
 
     if (!raw) {
       console.error('❌ OpenAI returned an empty response.');
@@ -309,6 +314,7 @@ ${leaseText}
       const parsed: TenantRightsConcern[] = JSON.parse(jsonStr);
       return parsed.filter((item) => item.category && item.issue);
     } catch (parseErr) {
+      console.error('❌ Failed to parse JSON from AI response:', parseErr);
       console.error('❌ JSON parsing failed. Raw content:', jsonStr);
       return [
         {
