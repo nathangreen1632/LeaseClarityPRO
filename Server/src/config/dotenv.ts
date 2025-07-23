@@ -21,6 +21,7 @@ const REQUIRED_ENV: string[] = [
   'DATABASE_URL',
   'JWT_SECRET',
   'OPENAI_API_KEY',
+  'OPENSTATES_API_KEY',
 ];
 
 const missingVars: string[] = REQUIRED_ENV.filter((v: string): boolean => !process.env[v]);
