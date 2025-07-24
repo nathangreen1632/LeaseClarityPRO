@@ -20,11 +20,6 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-
-    "baseUrl": ".",                    // ✅ Added
-    "paths": {                         // ✅ Added
-      "types/*": ["../types/*"]
-    }
   },
   "include": ["src"]
 }
