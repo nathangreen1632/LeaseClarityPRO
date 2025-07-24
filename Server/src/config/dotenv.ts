@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+import dotenv, {DotenvConfigOutput} from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -6,7 +6,7 @@ const __filename: string = fileURLToPath(import.meta.url);
 const __dirname: string = path.dirname(__filename);
 
 if (process.env.RENDER === undefined) {
-  const result = dotenv.config({
+  const result: DotenvConfigOutput = dotenv.config({
     path: path.resolve(__dirname, '../../.env'),
   });
 
