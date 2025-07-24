@@ -12,5 +12,4 @@ export interface LeaseStoreState {
   quickLookLoading: boolean;
   quickLookError: string | null;
   uploading: boolean;
-  // + any other state or actions
 }
