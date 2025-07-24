@@ -5,6 +5,7 @@ import { useLeaseStore } from '../store/useLeaseStore';
 import TenantRightsPanel from '../components/TenantRightsPanel';
 import type { TenantRightsAnalysis, TenantRightsConcern } from '../types/rights';
 import Spinner from "../components/Spinner";
+import type { Lease } from "../types";
 
 function LeaseReview() {
   const { analysis, setAnalysis, setBills, clearRightsAnalysis } = useRightsStore();
@@ -18,14 +19,21 @@ function LeaseReview() {
   const [selectedLeaseId, setSelectedLeaseId] = useState<number | ''>('');
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
+  // 🔄 Clear state when arriving on this page
+  useEffect((): void => {
+    clearRightsAnalysis();
+    setSelectedLeaseId('');
+    clearLeaseSummary();
+  }, []);
+
+  useEffect((): void => {
     void fetchLeases();
   }, [fetchLeases]);
 
-  useEffect(() => {
-    const fetchRightsData = async () => {
-      const state = localStorage.getItem('userState') ?? 'TX';
-      const lease = leases.find((l) => l.id === selectedLeaseId);
+  useEffect((): void => {
+    const fetchRightsData: () => Promise<void> = async (): Promise<void> => {
+      const state: string = localStorage.getItem('userState') ?? 'TX';
+      const lease: Lease | undefined = leases.find((l: Lease): boolean => l.id === selectedLeaseId);
       if (!lease || !token) return;
 
       setLoading(true);
@@ -33,7 +41,7 @@ function LeaseReview() {
       clearRightsAnalysis();
 
       try {
-        const res = await fetch('/api/rights/analyze-ai', {
+        const res: Response = await fetch('/api/rights/analyze-ai', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -77,13 +85,6 @@ function LeaseReview() {
     }
   }, [selectedLeaseId, leases, token, setAnalysis, setBills, clearLeaseSummary]);
 
-  useEffect(() => {
-    return () => {
-      clearRightsAnalysis();
-    };
-  }, []);
-
-
   return (
     <div className="p-6 text-red-500 max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">Lease Legal Review</h1>
@@ -95,12 +96,12 @@ function LeaseReview() {
         id="leaseSelect"
         className="mb-6 bg-[var(--theme-base)] text-white p-2 rounded w-full"
         value={selectedLeaseId}
-        onChange={(e) => setSelectedLeaseId(Number(e.target.value))}
+        onChange={(e): void => setSelectedLeaseId(Number(e.target.value))}
       >
         <option className="text-red-500" value="" disabled>
           Select a lease...
         </option>
-        {leases.map((lease) => (
+        {leases.map((lease: Lease) => (
           <option key={lease.id} value={lease.id}>
             {lease.originalFileName}
           </option>
@@ -117,7 +118,6 @@ function LeaseReview() {
           <TenantRightsPanel state={localStorage.getItem('userState') ?? 'TX'} />
         )
       )}
-
     </div>
   );
 }
