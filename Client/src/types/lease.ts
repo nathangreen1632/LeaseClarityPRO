@@ -6,3 +6,11 @@ export interface Lease {
   userId?: number;
   parsedText?: string;
 }
+
+export interface LeaseStoreState {
+  quickLookLeaseId: number | null;
+  quickLookLoading: boolean;
+  quickLookError: string | null;
+  uploading: boolean;
+  // + any other state or actions
+}
