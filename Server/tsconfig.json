@@ -4,15 +4,19 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "..",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": true,
-    "noImplicitReturns": true
+    "noImplicitReturns": true,
+    "baseUrl": ".",                      // ✅ Added
+    "paths": {                           // ✅ Added
+      "types/*": ["../types/*"]
+    }
   },
-  "include": ["src"],
+  "include": ["src", "../types"],
   "exclude": ["node_modules", "dist"]
 }
