@@ -1,6 +1,6 @@
-import { createLogger, transports, format } from 'winston';
+import { createLogger, transports, format, Logger } from 'winston';
 
-export const logger = createLogger({
+export const logger: Logger = createLogger({
   level: 'info',
   format: format.combine(format.timestamp(), format.simple()),
   transports: [
