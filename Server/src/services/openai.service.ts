@@ -1,4 +1,11 @@
-import { OpenAI } from 'openai';
+import {OpenAI} from 'openai';
+
+type TenantRightsConcern = {
+  category: string;
+  issue: string;
+  severity?: 'low' | 'medium' | 'high';
+  sourceClause?: string;
+};
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -70,7 +77,7 @@ ${text}
 `;
   try {
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: 'You extract structured data from lease agreements.' },
         { role: 'user', content: prompt },
@@ -78,33 +85,28 @@ ${text}
       temperature: 0.2,
     });
 
-    const content: string | null = completion.choices[0].message.content;
-    let cleanedContent: string = (content ?? '').replace(/```(?:json)?/gi, '').trim();
-    const jsonStr: string | null = extractFirstJsonObject(cleanedContent);
+    const content: string | null = completion.choices[0]?.message?.content ?? '';
+    const cleaned = content.replace(/```(?:json)?/gi, '').trim();
 
+    const jsonStr = extractFirstJsonObject(cleaned);
     if (!jsonStr) {
-      return {
-        error: true,
-        message: 'No JSON found in model response.',
-        raw: content,
-      };
+      console.error('❌ No JSON object found in OpenAI response.');
+      return { error: true, message: 'No valid JSON found in response.', raw: content };
     }
 
     try {
       return JSON.parse(jsonStr);
     } catch (parseErr) {
-      console.error('Error parsing JSON from AI response:', parseErr, jsonStr);
-      return {
-        error: true,
-        message: 'Failed to parse AI response as JSON.',
-        raw: content,
-      };
+      console.error('❌ JSON parsing failed:', parseErr);
+      console.error('❌ Raw content:', jsonStr);
+      return { error: true, message: 'Failed to parse response as JSON.', raw: content };
     }
-  } catch (apiErr) {
+  } catch (err) {
+    console.error('❌ OpenAI request failed in summarizeLease:', err);
     return {
       error: true,
       message: 'OpenAI API call failed.',
-      details: apiErr instanceof Error ? apiErr.message : apiErr,
+      details: err instanceof Error ? err.message : err,
     };
   }
 };
@@ -118,7 +120,7 @@ ${text}
 `;
   try {
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: 'You summarize leases for tenants in plain language.' },
         { role: 'user', content: prompt },
@@ -126,23 +128,25 @@ ${text}
       temperature: 0.4,
     });
 
-    const content: string | undefined = completion.choices[0].message.content?.trim();
-    if (!content) {
-      return {
-        error: true,
-        message: 'No summary text returned by OpenAI.',
-      };
+    const raw = completion.choices[0]?.message?.content?.trim() ?? '';
+    if (!raw) {
+      console.error('❌ No summary returned by OpenAI.');
+      return { error: true, message: 'No summary text returned by AI.' };
     }
-    const noMarkdown: string = content
+
+    const cleaned = raw
       .replace(/[*_`>#-]/g, '')
       .replace(/\n{2,}/g, '\n\n')
-      .replace(/ +/g, ' ');
-    return { summary: noMarkdown.trim() };
-  } catch (apiErr) {
+      .replace(/ +/g, ' ')
+      .trim();
+
+    return { summary: cleaned };
+  } catch (err) {
+    console.error('❌ OpenAI request failed in humanReadableLeaseSummary:', err);
     return {
       error: true,
       message: 'OpenAI API call failed.',
-      details: apiErr instanceof Error ? apiErr.message : apiErr,
+      details: err instanceof Error ? err.message : err,
     };
   }
 };
@@ -195,8 +199,11 @@ Answer:
       ],
     });
 
-    const rawContent: string | undefined = completion.choices[0].message.content?.trim();
-    if (!rawContent) return { error: true, message: 'No answer returned.' };
+    const rawContent = completion.choices[0]?.message?.content?.trim();
+    if (!rawContent) {
+      console.error('❌ No answer returned by OpenAI.');
+      return { error: true, message: 'No answer returned.' };
+    }
 
     const cleaned: string = rawContent
       .replace(/[*_`>#]/g, '')
@@ -208,7 +215,122 @@ Answer:
 
     return { answer: cleaned };
   } catch (err) {
-    return { error: true, message: 'OpenAI API call failed', details: err };
+    console.error('❌ OpenAI request failed in askQuestionAboutLease:', err);
+    return {
+      error: true,
+      message: 'OpenAI API call failed.',
+      details: err instanceof Error ? err.message : err,
+    };
+  }
+};
+
+export const analyzeLegalConcerns: (leaseText: string, state: string) => Promise<TenantRightsConcern[]> = async (
+  leaseText: string,
+  state: string
+): Promise<TenantRightsConcern[]> => {
+  const prompt = `
+You are an expert in U.S. tenant rights, lease law, and landlord-tenant power imbalances.
+
+Your job is to analyze the following residential lease agreement and list **every clause, statement, or requirement** that:
+
+- Violates or appears to violate tenant rights in the state of ${state}
+- Shifts legal or financial risk unfairly onto the tenant
+- Grants excessive power or discretion to the landlord
+- Imposes excessive fees, unclear penalties, or restrictive requirements
+- Uses vague, misleading, or coercive language
+- Reduces tenant privacy, autonomy, or access to justice
+
+🚨 You must be THOROUGH. Identify **all potential issues**, even if minor. This may include:
+- Privacy violations (e.g., forced showings, quarterly inspections)
+- Nonrefundable or deceptive fees (e.g., application, expedite, admin, pet)
+- One-sided indemnification clauses
+- Arbitrary pet or guest restrictions
+- Unclear lease termination penalties
+- Mandatory services that may not be legally enforceable
+- Waivers of landlord liability or tenant legal rights
+
+📌 Format your response as a JSON array of objects, each with a "category" and an "issue" field. Be specific and consistent with category labels.
+
+Only include actual written clauses or inferred implications from the lease. Do not speculate or generalize. Do not use numbers or bullet symbols.
+
+Example format:
+[
+  {
+    "category": "Excessive Fee",
+    "issue": "Late fees of $100 initial and $75 per day are excessive and may violate state laws."
+  },
+  {
+    "category": "Privacy Violation",
+    "issue": "Quarterly inspections may infringe on tenant privacy without cause."
+  }
+]
+
+Lease:
+${leaseText}
+`;
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      temperature: 0.5,
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You are an expert on U.S. tenant rights and lease violations. Be extremely thorough and risk-aware in all responses.',
+        },
+        { role: 'user', content: prompt },
+      ],
+    });
+
+    const raw: string = completion.choices?.[0]?.message?.content?.trim() ?? '';
+
+    if (!raw) {
+      console.error('❌ OpenAI returned an empty response.');
+      return [
+        {
+          category: 'Error',
+          issue: 'No response received from AI.',
+        },
+      ];
+    }
+
+    const firstBracket: number = raw.indexOf('[');
+    const lastBracket: number = raw.lastIndexOf(']');
+
+    if (firstBracket === -1 || lastBracket === -1 || firstBracket > lastBracket) {
+      console.error('❌ Could not locate valid JSON array in OpenAI response:', raw);
+      return [
+        {
+          category: 'Error',
+          issue: 'AI returned invalid format. Please try again.',
+        },
+      ];
+    }
+
+    const jsonStr: string = raw.slice(firstBracket, lastBracket + 1);
+
+    try {
+      const parsed: TenantRightsConcern[] = JSON.parse(jsonStr);
+      return parsed.filter((item): string => item.category && item.issue);
+    } catch (parseErr) {
+      console.error('❌ Failed to parse JSON from AI response:', parseErr);
+      console.error('❌ JSON parsing failed. Raw content:', jsonStr);
+      return [
+        {
+          category: 'Error',
+          issue: 'Unable to parse AI response. Try regenerating.',
+        },
+      ];
+    }
+  } catch (err) {
+    console.error('❌ OpenAI request failed in analyzeLegalConcerns:', err);
+    return [
+      {
+        category: 'Error',
+        issue: 'Error communicating with AI. Please try again later.',
+      },
+    ];
   }
 };
 

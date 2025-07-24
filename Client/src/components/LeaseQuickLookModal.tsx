@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, {type RefObject, useEffect, useRef} from "react";
 import Spinner from "./Spinner";
 import { useChatStore } from '../store/useChatStore';
 
@@ -25,7 +25,7 @@ function LeaseQuickLookModal(props: Readonly<LeaseQuickLookModalProps>) {
     leaseFileName,
   } = props;
 
-  const backdropRef = useRef<HTMLDivElement>(null);
+  const backdropRef: RefObject<HTMLDivElement | null> = useRef<HTMLDivElement>(null);
   const { isOpen, toggle } = useChatStore();
 
   useEffect((): void => {
@@ -52,13 +52,13 @@ function LeaseQuickLookModal(props: Readonly<LeaseQuickLookModalProps>) {
     }
   }, [open]);
 
-  const handleBackdropKeyDown = (e: React.KeyboardEvent<HTMLDivElement>): void => {
+  const handleBackdropKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void = (e: React.KeyboardEvent<HTMLDivElement>): void => {
     if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
       onClose();
     }
   };
 
-  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>): void => {
+  const handleBackdropClick: (e: React.MouseEvent<HTMLDivElement>) => void = (e: React.MouseEvent<HTMLDivElement>): void => {
     if (e.target === backdropRef.current) {
       onClose();
     }
@@ -101,8 +101,32 @@ function LeaseQuickLookModal(props: Readonly<LeaseQuickLookModalProps>) {
         aria-describedby="lease-quicklook-content"
         tabIndex={-1}
         onKeyDown={handleBackdropKeyDown}
-        onClick={e => e.stopPropagation()}
+        onClick={(e: React.MouseEvent<HTMLDivElement>): any => e.stopPropagation()}
       >
+        <div
+          className="absolute left-6"
+          style={{
+            top: '105px',
+            bottom: '93px',
+            width: '2px',
+            background: 'var(--theme-primary)',
+            zIndex: 10,
+            boxShadow: '2px 0 6px 0 rgba(0,0,0,0.33), -1px 0 1px 0 #fff'
+          }}
+        />
+
+        <div
+          className="absolute right-6"
+          style={{
+            top: '105px',
+            bottom: '93px',
+            width: '2px',
+            background: 'var(--theme-primary)',
+            zIndex: 10,
+            boxShadow: '-2px 0 6px 0 rgba(0,0,0,0.33), 1px 0 1px 0 #fff'
+          }}
+        />
+
         <button
           className="absolute top-3 right-4 text-3xl font-bold text-[var(--theme-error)] hover:text-[var(--theme-success)] transition"
           aria-label="Close"
@@ -121,14 +145,33 @@ function LeaseQuickLookModal(props: Readonly<LeaseQuickLookModalProps>) {
             {leaseFileName}
           </div>
         )}
+
+        <div
+          className="w-full"
+          style={{
+            height: '2px',
+            background: 'var(--theme-primary)',
+            boxShadow: '0 2px 6px 0 rgba(0,0,0,0.18), 0 -1px 1px 0 #fff'
+          }}
+        />
+
         <div
           id="lease-quicklook-content"
-          className="max-h-[60vh] overflow-y-auto whitespace-pre-wrap text-base sm:text-lg leading-relaxed text-[var(--theme-light)]"
+          className="max-h-[60vh] overflow-y-auto whitespace-pre-wrap text-base sm:text-lg leading-relaxed text-[var(--theme-light)] custom-scrollbar px-4"
         >
           {content}
         </div>
 
-        <div className="mt-6 border-t border-[var(--theme-primary)] pt-4">
+        <div
+          className="w-full"
+          style={{
+            height: '2px',
+            background: 'var(--theme-primary)',
+            boxShadow: '0 -2px 6px 0 rgba(0,0,0,0.22), 0 1px 1px 0 #fff'
+          }}
+        />
+
+        <div className="pt-4">
           <div className="flex justify-end">
             <button
               onClick={toggle}

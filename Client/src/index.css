@@ -20,3 +20,24 @@ body {
     background: var(--theme-base);
     color: var(--theme-outline);
 }
+
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--theme-primary) var(--theme-dark); /* thumb, track */
+}
+
+/* Chrome, Edge, Safari */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 10px;
+    border-radius: 8px;
+    background: var(--theme-dark);
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: var(--theme-dark);
+    border-radius: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--theme-primary);    /* Change to --theme-success for emerald */
+    border-radius: 8px;
+    border: 2px solid var(--theme-dark); /* Padding/visual space */
+}

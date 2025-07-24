@@ -53,7 +53,7 @@ export default function Home() {
           <LeaseSummaryCard error={summaryError} summary={null} />
         )}
         {selectedSummary && !summaryLoading && !summaryError && (
-          <LeaseSummaryCard summary={selectedSummary} />
+          <LeaseSummaryCard summary={selectedSummary} leaseFileName={leaseFileName} />
         )}
       </div>
 

@@ -1,0 +1,24 @@
+{
+  "TX": {
+    "noticeToEnter": {
+      "minimumNotice": "1 day",
+      "exceptions": ["emergency", "tenant consent"]
+    },
+    "lateFees": {
+      "maxAllowed": "10% of monthly rent",
+      "gracePeriod": "1 day"
+    }
+  },
+  "CA": {
+    "noticeToEnter": {
+      "minimumNotice": "24 hours",
+      "exceptions": ["emergency"]
+    }
+  },
+  "NY": {
+    "noticeToEnter": {
+      "minimumNotice": "24 hours",
+      "exceptions": ["emergency"]
+    }
+  }
+}

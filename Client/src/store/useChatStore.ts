@@ -18,7 +18,7 @@ interface ChatStore {
 export const useChatStore = create<ChatStore>((set) => ({
   isOpen: false,
   toggle: (): void =>
-    set((state):{isOpen: boolean} => ({
+    set((state: ChatStore):{isOpen: boolean} => ({
       isOpen: !state.isOpen,
     })),
   messages: [],

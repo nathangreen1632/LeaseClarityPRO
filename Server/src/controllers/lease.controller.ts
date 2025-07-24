@@ -43,6 +43,7 @@ export const summarizeLeaseController = async (req: AuthRequest, res: Response) 
   if (!req.user) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
+
   const { leaseId } = req.params;
   let lease;
   try {
@@ -51,9 +52,11 @@ export const summarizeLeaseController = async (req: AuthRequest, res: Response) 
     console.error('Error fetching lease:', err);
     return res.status(500).json({ error: 'Database error while looking up lease.' });
   }
+
   if (!lease) {
     return res.status(404).json({ error: 'Lease not found' });
   }
+
   if (!lease.filePath || typeof lease.filePath !== 'string') {
     console.error('Lease record missing filePath:', lease);
     return res.status(500).json({ error: 'Lease filePath is missing or invalid.' });
@@ -64,15 +67,19 @@ export const summarizeLeaseController = async (req: AuthRequest, res: Response) 
     if (!result.success) {
       return res.status(422).json({ error: result.error, details: result.details });
     }
-    const summary: any = await summarizeLease(result.text);
 
+    const summary: any = await summarizeLease(result.text);
     if (summary?.error) {
       return res.status(502).json({
         error: summary.message ?? 'AI lease summary failed',
         details: summary.raw ?? summary.details ?? null,
       });
     }
-    return res.status(200).json({ summary });
+
+    return res.status(200).json({
+      summary,
+      leaseFileName: lease.originalFileName ?? null,
+    });
   } catch (err) {
     console.error('Error summarizing lease:', err);
     return res.status(500).json({ error: 'Failed to summarize lease' });

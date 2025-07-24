@@ -40,6 +40,7 @@ export interface LeaseSummary {
 interface LeaseSummaryCardProps {
   summary: LeaseSummary | null;
   error?: string;
+  leaseFileName?: string | null;
 }
 
 const CURRENCY_FIELDS: string[] = [
@@ -51,8 +52,8 @@ const CURRENCY_FIELDS: string[] = [
 
 function formatCurrency(value: any): any {
   if (value == null || value === '') return '';
-  let num = typeof value === 'string' ? value.replace(/[$,]/g, '') : value;
-  let parsed = Number(num);
+  let num: any = typeof value === 'string' ? value.replace(/[$,]/g, '') : value;
+  let parsed: number = Number(num);
   if (isNaN(parsed)) return value;
   return parsed.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
 }
@@ -216,7 +217,7 @@ function renderObjectField(obj: any, parentKey = ''): React.ReactNode {
   return <span>{String(obj)}</span>;
 }
 
-export default function LeaseSummaryCard({ summary, error }: Readonly<LeaseSummaryCardProps>) {
+export default function LeaseSummaryCard({ summary, error, leaseFileName }: Readonly<LeaseSummaryCardProps>) {
   if (error) {
     return (
       <div className="bg-[var(--theme-error)] text-slate-200 rounded-2xl p-4 shadow-md my-2 w-full text-center font-bold">
@@ -241,7 +242,15 @@ export default function LeaseSummaryCard({ summary, error }: Readonly<LeaseSumma
 
   return (
     <div className="bg-[var(--theme-dark)] rounded-2xl shadow-md p-4 sm:p-6 w-full border-2 border-red-500 mb-3">
-      <h2 className="text-xl sm:text-2xl font-extrabold text-white mb-4 text-center underline">Lease Summary</h2>
+      <h2 className="text-xl sm:text-2xl font-extrabold text-white mb-4 text-center underline">
+        Lease Summary
+      </h2>
+      {leaseFileName && (
+        <div className="text-xs text-slate-300 text-center mb-3">
+          {leaseFileName}
+        </div>
+      )}
+
       <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 sm:gap-x-6 sm:gap-y-3">
         {FIELDS.map(({ key, label }) => {
           let value = normalizedSummary[key];

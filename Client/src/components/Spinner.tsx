@@ -17,7 +17,7 @@ function Spinner({
         height: size,
         borderWidth: size / 8,
         borderStyle: 'solid',
-        borderColor: `${color} transparent ${color} transparent !important`,
+        borderColor: `${color} transparent ${color} transparent`,
         borderRadius: '50%',
       }}
       aria-label="Loading"

@@ -51,7 +51,7 @@ const initialState = {
 export const useLeaseStore = create<LeaseStoreState>((set, _get) => ({
   ...initialState,
 
-  setUploading: (value: boolean) => set({ uploading: value }),
+  setUploading: (value: boolean): void => set({ uploading: value }),
 
   fetchLeases: async (): Promise<void> => {
     const token: string | null = useAuthStore.getState().token ?? localStorage.getItem('token');
@@ -142,11 +142,13 @@ export const useLeaseStore = create<LeaseStoreState>((set, _get) => ({
           summaryError: data?.error ?? 'Failed to fetch summary.',
           summaryLoading: false,
           selectedSummary: null,
+          leaseFileName: null,
         });
         return;
       }
       set({
         selectedSummary: data.summary,
+        leaseFileName: data.leaseFileName ?? null,
         summaryLoading: false,
         summaryError: null,
       });
