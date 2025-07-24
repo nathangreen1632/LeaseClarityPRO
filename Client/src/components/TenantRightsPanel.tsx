@@ -22,8 +22,8 @@ function TenantRightsPanel({ state }: Readonly<{ state: string }>) {
             <div className="max-h-[54vh] overflow-y-auto pr-2 space-y-4 custom-scrollbar">
               <ul className="space-y-4">
                 {analysis.map((item, index) => {
-                  const category: string = String(item.category || '').trim();
-                  const issue: string = String(item.issue || '').trim();
+                  const category: string = String(item.category ?? '').trim();
+                  const issue: string = String(item.issue ?? '').trim();
                   const key = `${generateKey(category, issue)}-${index}`;
 
                   return (
