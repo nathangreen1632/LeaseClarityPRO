@@ -3,7 +3,7 @@ import { useRightsStore } from '../store/useRightsStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { useLeaseStore } from '../store/useLeaseStore';
 import TenantRightsPanel from '../components/TenantRightsPanel';
-import type { TenantRightsAnalysis, TenantRightsConcern } from 'types/rights';
+import type { TenantRightsAnalysis, TenantRightsConcern } from '../types/rights';
 import Spinner from "../components/Spinner";
 import type { Lease } from "../types";
 
