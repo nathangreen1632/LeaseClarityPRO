@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { TenantRightsConcern, TenantRightsBill } from '../types/rights';
+import type { TenantRightsConcern, TenantRightsBill } from 'types/rights';
 
 interface TenantRightsState {
   analysis: TenantRightsConcern[];
