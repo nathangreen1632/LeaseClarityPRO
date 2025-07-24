@@ -52,8 +52,8 @@ const CURRENCY_FIELDS: string[] = [
 
 function formatCurrency(value: any): any {
   if (value == null || value === '') return '';
-  let num = typeof value === 'string' ? value.replace(/[$,]/g, '') : value;
-  let parsed = Number(num);
+  let num: any = typeof value === 'string' ? value.replace(/[$,]/g, '') : value;
+  let parsed: number = Number(num);
   if (isNaN(parsed)) return value;
   return parsed.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
 }
