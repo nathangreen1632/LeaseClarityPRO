@@ -2,7 +2,6 @@ import { readFile } from 'fs/promises';
 import path from 'path';
 import { getJurisdictionSlug } from '../utils/stateJurisdiction.js';
 
-// Re-declare types locally — NOT imported from frontend
 interface NoticeToEnterRule {
   minimumNotice: string;
   exceptions: string[];
@@ -28,18 +27,18 @@ interface TenantRightsBill {
 }
 
 export const analyzeLeaseByState = async (leaseText: string, state: string): Promise<string[]> => {
-  const rulesPath = path.resolve(__dirname, '../config/rightsRules.json');
+  const rulesPath: string = path.resolve(__dirname, '../config/rightsRules.json');
   let rules: Record<string, StateRightsRules>;
 
   try {
-    const file = await readFile(rulesPath, 'utf-8');
+    const file: string = await readFile(rulesPath, 'utf-8');
     rules = JSON.parse(file);
   } catch (err) {
     console.error('Failed to load tenant rights rules:', err);
     return ['⚠️ Unable to load tenant rights rules at this time.'];
   }
 
-  const stateRules = rules[state];
+  const stateRules: StateRightsRules = rules[state];
   const results: string[] = [];
 
   if (!stateRules) {
@@ -64,10 +63,10 @@ export const analyzeLeaseByState = async (leaseText: string, state: string): Pro
   return results;
 };
 
-export const fetchOpenStatesBills = async (state: string): Promise<TenantRightsBill[]> => {
+export const fetchOpenStatesBills: (state: string) => Promise<TenantRightsBill[]> = async (state: string): Promise<TenantRightsBill[]> => {
   const apiKey = process.env.OPENSTATES_API_KEY;
 
-  const jurisdiction = getJurisdictionSlug(state); // ✅ NEW
+  const jurisdiction: string = getJurisdictionSlug(state);
   if (!jurisdiction) {
     console.warn(`[OpenStates] Unsupported state code: ${state}`);
     return [];
@@ -79,18 +78,16 @@ export const fetchOpenStatesBills = async (state: string): Promise<TenantRightsB
 
 
   try {
-    console.log(`[OpenStates] Using jurisdiction: ${jurisdiction}`);
-
-    const res = await fetch(url, {
+    const res: Response = await fetch(url, {
       headers: {
         'X-API-Key': apiKey ?? '',
       },
     });
 
     if (!res.ok) {
-      const errorBody = await res.text(); // 🔍 <-- ADD THIS
+      const errorBody: string = await res.text();
       console.error(`[OpenStates] Failed to fetch bills: ${res.status} ${res.statusText}`);
-      console.error(`[OpenStates] Response body: ${errorBody}`); // 🔥 helpful info!
+      console.error(`[OpenStates] Response body: ${errorBody}`);
       return [];
     }
 
@@ -99,11 +96,11 @@ export const fetchOpenStatesBills = async (state: string): Promise<TenantRightsB
       return [];
     }
 
-    const data = await res.json();
+    const data: any = await res.json();
 
     return data.results
       .map((bill: any) => {
-        const url = bill.sources?.[0]?.url;
+        const url: any = bill.sources?.[0]?.url;
         return {
           title: bill.title,
           link: typeof url === 'string' && url.startsWith('http') ? url : null,
