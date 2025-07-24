@@ -3,6 +3,7 @@ import { fetchOpenStatesBills } from '../services/rights.service.js';
 import { analyzeLegalConcerns } from '../services/openai.service.js';
 import { Lease } from '../models/lease.model.js';
 import { extractTextFromPDF } from '../utils/pdfTextExtractor.js';
+import {TenantRightsBill, TenantRightsConcern} from "../types/index.js";
 
 export const analyzeTenantRightsWithAI = async (req: Request, res: Response): Promise<void> => {
   const { leaseId, state } = req.body;
@@ -13,18 +14,16 @@ export const analyzeTenantRightsWithAI = async (req: Request, res: Response): Pr
   }
 
   try {
-    console.log('🔍 leaseId:', leaseId);
-    const lease = await Lease.findByPk(leaseId);
+    const lease: Lease | null = await Lease.findByPk(leaseId);
 
     if (!lease) {
       res.status(404).json({ error: `Lease with ID ${leaseId} not found.` });
       return;
     }
 
-    let parsedText = lease.parsedText?.trim();
+    let parsedText: string | undefined = lease.parsedText?.trim();
 
     if (!parsedText) {
-      console.log('📄 No parsedText found. Attempting to extract from PDF:', lease.filePath);
       parsedText = await extractTextFromPDF(lease.filePath);
 
       if (!parsedText) {
@@ -36,8 +35,8 @@ export const analyzeTenantRightsWithAI = async (req: Request, res: Response): Pr
       await lease.save();
     }
 
-    const redFlags = await analyzeLegalConcerns(parsedText, state);
-    const bills = await fetchOpenStatesBills(state);
+    const redFlags: TenantRightsConcern[] = await analyzeLegalConcerns(parsedText, state);
+    const bills: TenantRightsBill[] = await fetchOpenStatesBills(state);
 
     res.status(200).json({
       state,
