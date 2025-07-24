@@ -1,26 +1,40 @@
-import { useCallback, useState } from 'react';
+import {type FormEvent, type ReactElement, useCallback, useState} from 'react';
 import { useDropzone } from 'react-dropzone';
 import { AiOutlineUpload } from 'react-icons/ai';
 import Spinner from './Spinner';
 import { useAuthStore } from '../store/useAuthStore';
+import type {AuthStoreState} from "../types";
 
 interface LeaseUploadFormProps {
   onUploadSuccess?: (file: File, leaseId?: number) => void;
 }
 
-export default function LeaseUploadForm({ onUploadSuccess }: Readonly<LeaseUploadFormProps>) {
+interface UploadResponse {
+  id: number;
+  error?: string;
+}
+
+export default function LeaseUploadForm({ onUploadSuccess }: Readonly<LeaseUploadFormProps>): ReactElement {
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  const token: string | null = useAuthStore((state): string | null => state.token) ?? localStorage.getItem('token');
+  const storeToken: string | null = useAuthStore((state: AuthStoreState): string | null => state.token);
+  const token: string | null = storeToken ?? localStorage.getItem('token');
 
   const onDrop: (acceptedFiles: File[]) => Promise<void> = useCallback(async (acceptedFiles: File[]): Promise<void> => {
     setError(null);
     const file: File = acceptedFiles[0];
+
     if (!file) {
       setError('No file selected.');
       return;
     }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setError('File must be under 10MB.');
+      return;
+    }
+
     if (file.type !== 'application/pdf') {
       setError('Only PDF files are allowed.');
       return;
@@ -39,7 +53,7 @@ export default function LeaseUploadForm({ onUploadSuccess }: Readonly<LeaseUploa
         body: formData,
       });
 
-      const data: any = await res.json();
+      const data: UploadResponse = await res.json();
       if (!res.ok) {
         setError(data?.error ?? 'Failed to upload file.');
       } else if (onUploadSuccess) onUploadSuccess(file, data.id);
@@ -65,7 +79,7 @@ export default function LeaseUploadForm({ onUploadSuccess }: Readonly<LeaseUploa
   return (
     <form
       className="w-full max-w-md flex flex-col items-center"
-      onSubmit={e => e.preventDefault()}
+      onSubmit={(e: FormEvent<HTMLFormElement>): void => e.preventDefault()}
     >
       <div
         {...getRootProps()}
