@@ -51,7 +51,7 @@ const initialState = {
 export const useLeaseStore = create<LeaseStoreState>((set, _get) => ({
   ...initialState,
 
-  setUploading: (value: boolean) => set({ uploading: value }),
+  setUploading: (value: boolean): void => set({ uploading: value }),
 
   fetchLeases: async (): Promise<void> => {
     const token: string | null = useAuthStore.getState().token ?? localStorage.getItem('token');
