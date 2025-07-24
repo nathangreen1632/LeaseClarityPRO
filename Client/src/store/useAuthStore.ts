@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { AuthCredentials, AuthResponse } from '../types/auth.js';
 import {useLeaseStore} from "./useLeaseStore.ts";
+import {useRightsStore} from "./useRightsStore.ts";
 
 function getStoredAuth(): { token: string | null; user: AuthResponse['user'] | null } {
   const token: string | null = localStorage.getItem('token');
@@ -100,5 +101,6 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     useLeaseStore.getState().reset();
+    useRightsStore.getState().clearRightsAnalysis();
   },
 }));
