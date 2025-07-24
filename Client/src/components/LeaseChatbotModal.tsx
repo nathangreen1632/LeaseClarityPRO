@@ -1,23 +1,21 @@
 import { useChatStore } from '../store/useChatStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { useLeaseStore } from '../store/useLeaseStore';
-import {type RefObject, useEffect, useRef, useState} from 'react';
+import { type RefObject, type ReactElement, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { v4 as uuid } from 'uuid';
 import { MessageCircle, X } from 'lucide-react';
+import type { ChatStore, Message, RenderableMessage } from '../types/chat';
+import type { LeaseStoreState } from "../types/lease";
+import type {AuthStoreState} from "../types/auth";
 
-interface RenderableMessage {
-  id: string;
-  sender: 'user' | 'bot';
-  text: string;
-}
-
-export default function LeaseChatbotModal() {
-  const leaseId: number | null = useLeaseStore((s): number | null => s.quickLookLeaseId);
-  const quickLookLoading: boolean = useLeaseStore((s): boolean => s.quickLookLoading);
-  const quickLookError: string | null = useLeaseStore((s): string | null => s.quickLookError);
-  const uploading: boolean = useLeaseStore((s): boolean => s.uploading);
-  const clearMessages: () => void = useChatStore((s): () => void => s.clearMessages);
+export default function LeaseChatbotModal(): ReactElement | null {
+  const leaseId: number | null = useLeaseStore((s: LeaseStoreState): number | null => s.quickLookLeaseId);
+  const quickLookLoading: boolean = useLeaseStore((s: LeaseStoreState): boolean => s.quickLookLoading);
+  const quickLookError: string | null = useLeaseStore((s: LeaseStoreState): string | null => s.quickLookError);
+  const uploading: boolean = useLeaseStore((s: LeaseStoreState): boolean => s.uploading);
+  const clearMessages: () => void = useChatStore((s: ChatStore): () => void => s.clearMessages);
+  const inputRef: RefObject<HTMLInputElement | null> = useRef<HTMLInputElement>(null);
 
   const {
     isOpen,
@@ -28,7 +26,7 @@ export default function LeaseChatbotModal() {
     setLoading,
   } = useChatStore();
 
-  const token: string | null = useAuthStore((s): string | null => s.token);
+  const token: string | null = useAuthStore((s: AuthStoreState): string | null => s.token);
   const [input, setInput] = useState('');
   const containerRef: RefObject<HTMLDivElement | null> = useRef<HTMLDivElement>(null);
   const [renderMessages, setRenderMessages] = useState<RenderableMessage[]>([]);
@@ -61,7 +59,7 @@ export default function LeaseChatbotModal() {
 
   useEffect((): void => {
     setRenderMessages(
-      messages.map((m, index) => ({
+      messages.map((m: Message, index: number): RenderableMessage => ({
         ...m,
         id: `${index}-${m.text.slice(0, 10)}-${uuid()}`,
       }))
@@ -114,6 +112,7 @@ export default function LeaseChatbotModal() {
       });
     } finally {
       setLoading(false);
+      inputRef.current?.focus();
     }
   };
 
@@ -160,9 +159,9 @@ export default function LeaseChatbotModal() {
         ref={containerRef}
         className="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-slate-300 rounded-b-lg ring-1 ring-inset ring-gray-100 shadow-inner custom-scrollbar"
       >
-        {renderMessages.map((msg, index) => {
+        {renderMessages.map((msg: RenderableMessage, index: number) => {
           let baseClasses: string = 'p-2 rounded-lg shadow max-w-[80%] break-words transition-opacity duration-1000';
-          let messageClasses: string = '';
+          let messageClasses: string;
 
           if (msg.sender === 'user') {
             messageClasses = 'bg-emerald-100 shadow-md border border-emerald-200 self-end ml-auto text-right';
@@ -184,10 +183,14 @@ export default function LeaseChatbotModal() {
 
       <div className="p-3 border-t bg-gradient-to-r from-slate-20 to-slate-500 relative shadow-md rounded-b-2xl">
         <input
+          ref={inputRef}
           value={input}
           onChange={(e): void => setInput(e.target.value)}
           onKeyDown={(e): void => {
-            if (e.key === 'Enter') void askQuestion();
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              void askQuestion();
+            }
           }}
           disabled={loading}
           className="w-full pr-24 border text-[var(--theme-base)] border-black rounded-lg px-3 py-2 text-base sm:text-sm focus:ring-2 focus:ring-emerald-400 focus:outline-none shadow-inner"
