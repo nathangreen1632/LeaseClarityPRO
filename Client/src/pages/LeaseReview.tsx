@@ -27,7 +27,9 @@ function LeaseReview() {
   }, []);
 
   useEffect((): void => {
-    void fetchLeases();
+    (async (): Promise<void> => {
+      await fetchLeases();
+    })();
   }, [fetchLeases]);
 
   useEffect((): void => {
