@@ -12,7 +12,7 @@ interface TenantRightsState {
 export const useRightsStore = create<TenantRightsState>((set) => ({
   analysis: [],
   bills: [],
-  setAnalysis: (analysis) => set({ analysis }),
-  setBills: (bills) => set({ bills }),
-  clearRightsAnalysis: () => set({ analysis: [], bills: [] }),
+  setAnalysis: (analysis: TenantRightsConcern[]): void => set({ analysis }),
+  setBills: (bills: TenantRightsBill[]): void => set({ bills }),
+  clearRightsAnalysis: (): void => set({ analysis: [], bills: [] }),
 }));
