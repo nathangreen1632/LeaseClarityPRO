@@ -6,7 +6,7 @@
     "install": "if [ -d './Server' ]; then cd Server && npm i; cd ..; fi && cd Client && npm i",
     "dev": "concurrently \"npm run dev --prefix Client\" \"npm run dev --prefix Server\"",
     "build": "npm run build --prefix Server && npm run build --prefix Client",
-    "start": "npm run build && npm run start --prefix Server"
+    "start": "npm run start --prefix Server"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
