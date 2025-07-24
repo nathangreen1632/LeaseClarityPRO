@@ -1,25 +1,23 @@
 import { Request, Response } from 'express';
 import { User } from '../models/index.js';
 import bcrypt from 'bcrypt';
-import { z } from 'zod';
-import {JwtSignResult, signJwt} from '../config/jwt.js'; // <-- Use your jwt helper
+import { JwtSignResult, signJwt } from '../config/jwt.js';
+import { registerSchema, loginSchema, RegisterInput, LoginInput } from '../validators/authSchemas.js';
 
-const registerSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-});
-
-export const register = async (req: Request, res: Response) => {
+export const register = async (
+  req: Request<{}, {}, RegisterInput>,
+  res: Response
+): Promise<Response | void> => {
   try {
     const parsed = registerSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({ error: parsed.error.flatten() });
     }
+
     const { email, password, firstName, lastName } = parsed.data;
     const existing: User | null = await User.findOne({ where: { email } });
     if (existing) return res.status(409).json({ error: 'Email already exists' });
+
     const passwordHash: string = await bcrypt.hash(password, 10);
     const user: User = await User.create({ email, passwordHash, firstName, lastName });
 
@@ -43,20 +41,20 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
-const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string(),
-});
-
-export const login = async (req: Request, res: Response) => {
+export const login = async (
+  req: Request<{}, {}, LoginInput>,
+  res: Response
+): Promise<Response | void> => {
   try {
     const parsed = loginSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({ error: parsed.error.flatten() });
     }
+
     const { email, password } = parsed.data;
     const user: User | null = await User.findOne({ where: { email } });
     if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+
     const valid: boolean = await bcrypt.compare(password, user.passwordHash);
     if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
 
