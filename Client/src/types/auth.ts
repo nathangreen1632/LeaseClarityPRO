@@ -15,3 +15,6 @@ export interface AuthResponse {
   };
 }
 
+export interface AuthStoreState {
+  token: string | null;
+}
