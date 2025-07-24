@@ -205,7 +205,7 @@ Answer:
       return { error: true, message: 'No answer returned.' };
     }
 
-    const cleaned = rawContent
+    const cleaned: string = rawContent
       .replace(/[*_`>#]/g, '')
       .replace(/^\d+\.\s+/gm, '')
       .replace(/(?:^|\n)([A-Z][\w/()'’\- ]{3,90}):/g, '\n\n$1:')
@@ -224,7 +224,7 @@ Answer:
   }
 };
 
-export const analyzeLegalConcerns = async (
+export const analyzeLegalConcerns: (leaseText: string, state: string) => Promise<TenantRightsConcern[]> = async (
   leaseText: string,
   state: string
 ): Promise<TenantRightsConcern[]> => {
@@ -283,7 +283,7 @@ ${leaseText}
       ],
     });
 
-    const raw = completion.choices?.[0]?.message?.content?.trim() ?? '';
+    const raw: string = completion.choices?.[0]?.message?.content?.trim() ?? '';
 
     if (!raw) {
       console.error('❌ OpenAI returned an empty response.');
@@ -295,8 +295,8 @@ ${leaseText}
       ];
     }
 
-    const firstBracket = raw.indexOf('[');
-    const lastBracket = raw.lastIndexOf(']');
+    const firstBracket: number = raw.indexOf('[');
+    const lastBracket: number = raw.lastIndexOf(']');
 
     if (firstBracket === -1 || lastBracket === -1 || firstBracket > lastBracket) {
       console.error('❌ Could not locate valid JSON array in OpenAI response:', raw);
@@ -308,11 +308,11 @@ ${leaseText}
       ];
     }
 
-    const jsonStr = raw.slice(firstBracket, lastBracket + 1);
+    const jsonStr: string = raw.slice(firstBracket, lastBracket + 1);
 
     try {
       const parsed: TenantRightsConcern[] = JSON.parse(jsonStr);
-      return parsed.filter((item) => item.category && item.issue);
+      return parsed.filter((item): string => item.category && item.issue);
     } catch (parseErr) {
       console.error('❌ Failed to parse JSON from AI response:', parseErr);
       console.error('❌ JSON parsing failed. Raw content:', jsonStr);
