@@ -78,7 +78,7 @@ export const summarizeLeaseController = async (req: AuthRequest, res: Response) 
 
     return res.status(200).json({
       summary,
-      leaseFileName: lease.originalFileName ?? null, // ✅ add filename here
+      leaseFileName: lease.originalFileName ?? null,
     });
   } catch (err) {
     console.error('Error summarizing lease:', err);
