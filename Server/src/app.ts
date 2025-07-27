@@ -14,17 +14,17 @@ const app: Express = express();
 
 app.disable('x-powered-by');
 
-app.use(
-  helmet.contentSecurityPolicy({
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", 'https://www.google.com', 'https://www.gstatic.com'],
-      objectSrc: ["'none'"],
-      frameSrc: ['https://www.google.com', 'https://www.gstatic.com'],
-      connectSrc: ["'self'", 'https://www.google.com'],
-    },
-  })
-);
+helmet.contentSecurityPolicy({
+  directives: {
+    defaultSrc: ["'self'"],
+    scriptSrc: ["'self'", 'https://www.google.com', 'https://www.gstatic.com'],
+    objectSrc: ["'none'"],
+    frameSrc: ['https://www.google.com', 'https://www.gstatic.com'],
+    connectSrc: ["'self'", 'https://www.google.com'],
+    upgradeInsecureRequests: [],
+  },
+})
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
