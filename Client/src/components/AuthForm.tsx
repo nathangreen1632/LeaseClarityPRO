@@ -15,7 +15,7 @@ const AuthForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const switchMode = (): void => {
+  const switchMode: () => void = (): void => {
     if (mode === 'login') {
       setMode('register');
       setFields(INIT_REGISTER);
@@ -48,8 +48,15 @@ const AuthForm: React.FC = () => {
     }
   };
 
-  const submitLabel =
-    loading ? 'Please wait…' : mode === 'login' ? 'Sign In' : 'Register';
+  let submitLabel: string;
+  if (loading) {
+    submitLabel = 'Please wait…';
+  } else if (mode === 'login') {
+    submitLabel = 'Sign In';
+  } else {
+    submitLabel = 'Register';
+  }
+
 
   return (
     <div className="w-full max-w-sm mx-auto bg-[var(--theme-dark)] rounded-2xl shadow-lg p-6 border-2 border-[var(--theme-outline)]">
