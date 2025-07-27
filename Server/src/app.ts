@@ -1,7 +1,8 @@
-import express, {Express} from 'express';
+import express, { Express } from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import helmet from 'helmet';
 
 import routes from './routes/index.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -12,6 +13,19 @@ const __dirname: string = path.dirname(__filename);
 const app: Express = express();
 
 app.disable('x-powered-by');
+
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", 'https://www.google.com', 'https://www.gstatic.com'],
+      objectSrc: ["'none'"],
+      frameSrc: ['https://www.google.com', 'https://www.gstatic.com'],
+      connectSrc: ["'self'", 'https://www.google.com'],
+    },
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
