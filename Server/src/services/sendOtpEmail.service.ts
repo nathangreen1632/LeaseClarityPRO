@@ -1,8 +1,8 @@
-import { Resend } from 'resend';
+import {CreateEmailResponse, Resend} from 'resend';
 import { User } from '../models/user.model.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const fromEmail = process.env.FROM_EMAIL ?? '';
+const fromEmail: string = process.env.FROM_EMAIL ?? '';
 
 export async function sendOtpEmail(to: string, otp: string): Promise<void> {
   if (!process.env.RESEND_API_KEY || !fromEmail) {
@@ -11,11 +11,10 @@ export async function sendOtpEmail(to: string, otp: string): Promise<void> {
   }
 
   try {
-    // 👇 Lookup user's first name from DB
-    const user = await User.findOne({ where: { email: to } });
-    const name = user?.firstName?.trim() ?? 'there';
+    const user: User | null = await User.findOne({ where: { email: to } });
+    const name: string = user?.firstName?.trim() ?? 'there';
 
-    const response = await resend.emails.send({
+    const response: CreateEmailResponse = await resend.emails.send({
       from: fromEmail,
       to,
       subject: 'Your LeaseClarityPRO Verification Code',
