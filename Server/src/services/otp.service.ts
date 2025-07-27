@@ -25,10 +25,13 @@ export async function generateOtpForPhone(phone: string): Promise<void> {
     `
         SELECT * FROM otp_requests
         WHERE phone_number = :phone
-          AND created_at > NOW() - INTERVAL '${OTP_RATE_LIMIT_SECONDS} seconds'
+          AND created_at > NOW() - INTERVAL :interval
     `,
     {
-      replacements: { phone },
+      replacements: {
+        phone,
+        interval: `${OTP_RATE_LIMIT_SECONDS} seconds`, // now safely parameterized
+      },
       type: QueryTypes.SELECT,
     }
   );
