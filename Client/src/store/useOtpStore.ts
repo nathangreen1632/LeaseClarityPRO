@@ -21,7 +21,7 @@ export const useOtpStore = create<OtpStore>((set) => ({
   step: 'enterEmail',
   tempOtpToken: null,
 
-  openModal: () =>
+  openModal: (): void =>
     set({
       isOpen: true,
       step: 'enterEmail',
@@ -30,7 +30,7 @@ export const useOtpStore = create<OtpStore>((set) => ({
       // phone: '',
     }),
 
-  closeModal: () =>
+  closeModal: (): void =>
     set({
       isOpen: false,
       step: 'enterEmail',
@@ -39,7 +39,7 @@ export const useOtpStore = create<OtpStore>((set) => ({
       // phone: '',
     }),
 
-  setEmail: (email) => set({ email }),
+  setEmail: (email: string): void => set({ email }),
 
   setStep: (step) => set({ step }),
 
