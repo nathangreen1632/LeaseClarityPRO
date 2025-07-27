@@ -1,5 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, {type ChangeEvent, useEffect, useState} from 'react';
 import { useOtpStore } from '../store/useOtpStore';
+
+interface OtpResponse {
+  message?: string;
+  success?: boolean;
+}
 
 declare global {
   interface Window {
@@ -18,7 +23,7 @@ const OtpResetModal: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
+  useEffect((): void => {
     if (isOpen && step === 'enterEmail') {
       setOtp('');
       setNewPassword('');
@@ -29,13 +34,13 @@ const OtpResetModal: React.FC = () => {
 
   if (!isOpen) return null;
 
-  const handleEmailSubmit = async () => {
+  const handleEmailSubmit: () => Promise<void> = async (): Promise<void> => {
     setLoading(true);
     setError('');
 
-    const trimmedEmail = email.trim().toLowerCase(); // ✅ Normalize input
+    const trimmedEmail: string = email.trim().toLowerCase();
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // ✅ Format check
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(trimmedEmail)) {
       setError('Please enter a valid email address.');
       setLoading(false);
@@ -48,17 +53,17 @@ const OtpResetModal: React.FC = () => {
         return;
       }
 
-      const captchaToken = await window.grecaptcha.execute('6LclLo8rAAAAAG20j6CWhgkxLfB80NkzwzBVBCUN', {
+      const captchaToken: string = await window.grecaptcha.execute('6LclLo8rAAAAAG20j6CWhgkxLfB80NkzwzBVBCUN', {
         action: 'send_otp',
       });
 
-      const res = await fetch('/api/otp/send', {
+      const res: Response = await fetch('/api/otp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: trimmedEmail, captchaToken }), // ✅ Use normalized email
+        body: JSON.stringify({ email: trimmedEmail, captchaToken }),
       });
 
-      const data = await res.json();
+      const data: OtpResponse = await res.json();
 
       if (!res.ok) {
         setError(data?.message ?? 'Failed to send OTP. Please try again.');
@@ -74,7 +79,7 @@ const OtpResetModal: React.FC = () => {
     }
   };
 
-  const handleOtpSubmit = async () => {
+  const handleOtpSubmit: () => Promise<void> = async (): Promise<void> => {
     setError('');
 
     if (!otp || !newPassword || !confirm) {
@@ -90,13 +95,13 @@ const OtpResetModal: React.FC = () => {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/otp/email/verify', {
+      const res: Response = await fetch('/api/otp/email/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim().toLowerCase(), otp, newPassword }), // ✅ Normalize before sending
+        body: JSON.stringify({ email: email.trim().toLowerCase(), otp, newPassword }),
       });
 
-      const data = await res.json();
+      const data: OtpResponse = await res.json();
 
       if (!res.ok) {
         setError(data?.message ?? 'OTP verification failed.');
@@ -118,13 +123,12 @@ const OtpResetModal: React.FC = () => {
       <div className="bg-[var(--theme-dark)] border border-[var(--theme-outline)] rounded-xl p-6 w-full max-w-sm space-y-4">
         <h2 className="text-xl font-bold text-[var(--theme-light)] text-center">Reset Password</h2>
 
-        {/* Step 1: Email input */}
         {step === 'enterEmail' && (
           <>
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value.toLowerCase())} // ✅ Normalize on input
+              onChange={(e: ChangeEvent<HTMLInputElement>): void => setEmail(e.target.value.toLowerCase())}
               placeholder="Enter your email"
               className="w-full px-3 py-2 rounded-lg bg-[var(--theme-light)] focus:outline-[var(--theme-primary)]"
               required
@@ -139,7 +143,6 @@ const OtpResetModal: React.FC = () => {
           </>
         )}
 
-        {/* Step 2: OTP + Password fields */}
         {step === 'verifyOtp' && (
           <>
             <input
@@ -147,7 +150,7 @@ const OtpResetModal: React.FC = () => {
               inputMode="numeric"
               autoComplete="one-time-code"
               value={otp}
-              onChange={(e) => setOtp(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>): void => setOtp(e.target.value)}
               placeholder="Enter the 6-digit OTP"
               className="w-full px-3 py-2 rounded-lg bg-[var(--theme-light)] focus:outline-[var(--theme-primary)]"
               required
@@ -157,7 +160,7 @@ const OtpResetModal: React.FC = () => {
               <input
                 type={showPass ? 'text' : 'password'}
                 value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>): void => setNewPassword(e.target.value)}
                 placeholder="New Password"
                 className="w-full px-3 py-2 rounded-lg bg-[var(--theme-light)] focus:outline-[var(--theme-primary)] pr-16"
                 required
@@ -165,7 +168,7 @@ const OtpResetModal: React.FC = () => {
               <button
                 type="button"
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-xs underline font-semibold text-[var(--theme-primary)]"
-                onClick={() => setShowPass((v) => !v)}
+                onClick={(): void => setShowPass((v: boolean): boolean => !v)}
               >
                 {showPass ? 'Hide' : 'View'}
               </button>
@@ -175,7 +178,7 @@ const OtpResetModal: React.FC = () => {
               <input
                 type={showConfirm ? 'text' : 'password'}
                 value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>): void => setConfirm(e.target.value)}
                 placeholder="Confirm Password"
                 className="w-full px-3 py-2 rounded-lg bg-[var(--theme-light)] focus:outline-[var(--theme-primary)] pr-16"
                 required
@@ -183,7 +186,7 @@ const OtpResetModal: React.FC = () => {
               <button
                 type="button"
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-xs underline font-semibold text-[var(--theme-primary)]"
-                onClick={() => setShowConfirm((v) => !v)}
+                onClick={(): void => setShowConfirm((v: boolean): boolean => !v)}
               >
                 {showConfirm ? 'Hide' : 'View'}
               </button>
