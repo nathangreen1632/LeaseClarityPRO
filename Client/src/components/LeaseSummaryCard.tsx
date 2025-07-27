@@ -34,8 +34,32 @@ export interface LeaseSummary {
   cashPaymentAllowed?: string;
   trashRemovalFee?: number;
   trashAdminFee?: number;
+
+  // NEWLY ADDED FIELDS
+  propertyName?: string;
+  unitNumber?: string;
+  garageIncluded?: string;
+  applicationDate?: string;
+  possessionDate?: string;
+  concessionAmount?: string;
+  utilitiesAdminFee?: string;
+  garageFee?: string;
+  storageFee?: string;
+  rekeyFee?: string;
+  pestControlFee?: string;
+  filterFee?: string;
+  legalNoticeAddress?: string;
+  militaryClauseAcknowledged?: string;
+  criminalBackgroundAcknowledged?: string;
+  packageServiceFee?: string;
+  valetTrashFee?: string;
+  internetProvided?: string;
+  signedElectronically?: boolean;
+  leaseVersion?: string;
+
   [key: string]: any;
 }
+
 
 interface LeaseSummaryCardProps {
   summary: LeaseSummary | null;
@@ -47,7 +71,9 @@ const CURRENCY_FIELDS: string[] = [
   'rent', 'securityDeposit', 'animalDeposit', 'petRent',
   'petViolationFee', 'returnedCheckFee', 'applicationFee', 'adminFee',
   'expediteFee', 'amendmentFee', 'hoaFee', 'evaluationFee', 'initial',
-  'daily', 'trashRemovalFee', 'trashAdminFee', 'insuranceMinimum'
+  'daily', 'trashRemovalFee', 'trashAdminFee', 'insuranceMinimum',
+  'concessionAmount', 'utilitiesAdminFee', 'garageFee', 'storageFee',
+  'rekeyFee', 'pestControlFee', 'filterFee', 'packageServiceFee', 'valetTrashFee'
 ];
 
 function formatCurrency(value: any): any {
@@ -91,7 +117,28 @@ const FIELDS: {key: string; label: string}[] = [
   { key: 'carpetCleaning', label: 'Move-out Carpet Cleaning Required' },
   { key: 'quarterlyInspection', label: 'Quarterly Inspections' },
   { key: 'showingsNotice', label: 'Showings During Final Lease Days' },
-  { key: 'cashPaymentAllowed', label: 'Cash Payment Allowed' }
+  { key: 'cashPaymentAllowed', label: 'Cash Payment Allowed' },
+  { key: 'propertyName', label: 'Property Name' },
+  { key: 'unitNumber', label: 'Unit Number' },
+  { key: 'garageIncluded', label: 'Garage Included' },
+  { key: 'applicationDate', label: 'Application Date' },
+  { key: 'possessionDate', label: 'Possession Date' },
+  { key: 'concessionAmount', label: 'Concession Amount' },
+  { key: 'utilitiesAdminFee', label: 'Utilities Admin Fee' },
+  { key: 'garageFee', label: 'Garage Fee' },
+  { key: 'storageFee', label: 'Storage Fee' },
+  { key: 'rekeyFee', label: 'Rekey Fee' },
+  { key: 'pestControlFee', label: 'Pest Control Fee' },
+  { key: 'filterFee', label: 'Filter Fee' },
+  { key: 'legalNoticeAddress', label: 'Legal Notice Address' },
+  { key: 'militaryClauseAcknowledged', label: 'Military Clause Acknowledged' },
+  { key: 'criminalBackgroundAcknowledged', label: 'Criminal Background Acknowledged' },
+  { key: 'packageServiceFee', label: 'Package Service Fee' },
+  { key: 'valetTrashFee', label: 'Valet Trash Fee' },
+  { key: 'internetProvided', label: 'Internet Provided' },
+  { key: 'signedElectronically', label: 'Signed Electronically' },
+  { key: 'leaseVersion', label: 'Lease Version' },
+
 ];
 
 const SUMMARY_KEY_MAP: Record<string, string> = {
@@ -127,7 +174,28 @@ const SUMMARY_KEY_MAP: Record<string, string> = {
   'Move-out Carpet Cleaning Required': 'carpetCleaning',
   'Quarterly Inspections': 'quarterlyInspection',
   'Showings During Final Lease Days': 'showingsNotice',
-  'Cash Payment Allowed': 'cashPaymentAllowed'
+  'Cash Payment Allowed': 'cashPaymentAllowed',
+  'Property Name': 'propertyName',
+  'Unit Number': 'unitNumber',
+  'Garage Included': 'garageIncluded',
+  'Application Date': 'applicationDate',
+  'Possession Date': 'possessionDate',
+  'Concession Amount': 'concessionAmount',
+  'Utilities Admin Fee': 'utilitiesAdminFee',
+  'Garage Fee': 'garageFee',
+  'Storage Fee': 'storageFee',
+  'Rekey Fee': 'rekeyFee',
+  'Pest Control Fee': 'pestControlFee',
+  'Filter Fee': 'filterFee',
+  'Legal Notice Address': 'legalNoticeAddress',
+  'Military Clause Acknowledged': 'militaryClauseAcknowledged',
+  'Criminal Background Acknowledged': 'criminalBackgroundAcknowledged',
+  'Package Service Fee': 'packageServiceFee',
+  'Valet Trash Fee': 'valetTrashFee',
+  'Internet Provided': 'internetProvided',
+  'Signed Electronically': 'signedElectronically',
+  'Lease Version': 'leaseVersion',
+
 };
 
 const BUBBLE_UP_FIELDS: { parent: string; child: string; to: string }[] = [

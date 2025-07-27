@@ -66,7 +66,26 @@ You are an expert in lease agreements. Given the following lease text, extract a
 - Quarterly Inspections (yes/no/details)
 - Showings During Final Lease Days
 - Cash Payment Allowed (yes/no)
-- Any other notable addenda or policy
+- Property Name
+- Unit Number
+- Garage Included (yes/no)
+- Application Date
+- Possession Date
+- Concession Amount
+- Utilities Admin Fee
+- Garage Fee
+- Storage Fee
+- Rekey Fee
+- Pest Control Fee
+- Filter Fee
+- Legal Notice Address
+- Military Clause Acknowledged (yes/no)
+- Criminal Background Acknowledged (yes/no)
+- Package Service Fee
+- Valet Trash Fee
+- Internet Provided (yes/no)
+- Signed Electronically (yes/no)
+- Lease Version
 
 Return the results as a **valid JSON object**. For array fields (tenants, occupants, vehicles, animals, utilities), use arrays or objects as appropriate. Only include fields found in the lease.
 

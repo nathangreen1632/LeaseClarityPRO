@@ -7,6 +7,7 @@ export interface UserAttributes {
   passwordHash: string;
   firstName?: string;
   lastName?: string;
+  phoneNumber?: string; // ✅ Added
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -20,6 +21,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes>
   declare passwordHash: string;
   declare firstName?: string;
   declare lastName?: string;
+  declare phoneNumber?: string; // ✅ Added
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
 }
@@ -31,6 +33,7 @@ User.init(
     passwordHash: { type: DataTypes.STRING, allowNull: false },
     firstName: { type: DataTypes.STRING, allowNull: true },
     lastName: { type: DataTypes.STRING, allowNull: true },
+    phoneNumber: { type: DataTypes.STRING, field: 'phone_number', allowNull: true }, // ✅ Added mapping to column
   },
   {
     sequelize,

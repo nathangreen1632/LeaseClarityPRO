@@ -22,6 +22,11 @@ const REQUIRED_ENV: string[] = [
   'JWT_SECRET',
   'OPENAI_API_KEY',
   'OPENSTATES_API_KEY',
+  'TWILIO_ACCOUNT_SID',
+  'TWILIO_AUTH_TOKEN',
+  'RECAPTCHA_SECRET',
+  'RESEND_API_KEY',
+  'FROM_EMAIL',
 ];
 
 const missingVars: string[] = REQUIRED_ENV.filter((v: string): boolean => !process.env[v]);

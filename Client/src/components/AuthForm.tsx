@@ -1,8 +1,9 @@
-import React, {type FormEvent, useState} from 'react';
+import React, { type FormEvent, useState } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
+import { useOtpStore } from '../store/useOtpStore.ts';
 
 const INIT_LOGIN = { email: '', password: '' };
-const INIT_REGISTER = { email: '', password: '', firstName: '', lastName: '' };
+const INIT_REGISTER = { email: '', password: '', firstName: '', lastName: '', phoneNumber: '' };
 
 const AuthForm: React.FC = () => {
   const [mode, setMode] = useState<'login' | 'register'>('login');
@@ -29,11 +30,11 @@ const AuthForm: React.FC = () => {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setFields((f: {email: string; password: string}): {email: string; password: string} => ({ ...f, [e.target.name]: e.target.value }));
+    setFields((f) => ({ ...f, [e.target.name]: e.target.value }));
     if (e.target.name === 'password') setPasswordError('');
   };
 
-  const handleSubmit: (e: FormEvent) => Promise<void> = async (e: React.FormEvent): Promise<void> => {
+  const handleSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
     if (mode === 'register') {
       if (fields.password !== confirmPassword) {
@@ -83,6 +84,16 @@ const AuthForm: React.FC = () => {
               className="border rounded-lg px-3 py-2 bg-[var(--theme-light)] focus:outline-[var(--theme-primary)]"
               required
               autoComplete="family-name"
+            />
+            <input
+              name="phoneNumber"
+              type="tel"
+              placeholder="Phone Number"
+              value={(fields as any).phoneNumber ?? ''}
+              onChange={handleChange}
+              className="border rounded-lg px-3 py-2 bg-[var(--theme-light)] focus:outline-[var(--theme-primary)]"
+              required
+              autoComplete="tel"
             />
           </>
         )}
@@ -159,7 +170,6 @@ const AuthForm: React.FC = () => {
         >
           {submitLabel}
         </button>
-
       </form>
       {error && (
         <div className="text-[var(--theme-error)] text-center font-semibold mt-3">
@@ -175,6 +185,15 @@ const AuthForm: React.FC = () => {
           {mode === 'login'
             ? "Don't have an account? Register"
             : 'Already have an account? Sign In'}
+        </button>
+      </div>
+      <div className="text-center mt-3">
+        <button
+          type="button"
+          className="text-[var(--theme-light)] underline font-medium"
+          onClick={() => useOtpStore.getState().openModal()}
+        >
+          Forgot Password?
         </button>
       </div>
     </div>

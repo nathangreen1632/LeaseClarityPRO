@@ -14,12 +14,19 @@ export const register = async (
       return res.status(400).json({ error: parsed.error.flatten() });
     }
 
-    const { email, password, firstName, lastName } = parsed.data;
+    const { email, password, firstName, lastName, phoneNumber } = parsed.data;
+
     const existing: User | null = await User.findOne({ where: { email } });
     if (existing) return res.status(409).json({ error: 'Email already exists' });
 
     const passwordHash: string = await bcrypt.hash(password, 10);
-    const user: User = await User.create({ email, passwordHash, firstName, lastName });
+    const user: User = await User.create({
+      email,
+      passwordHash,
+      firstName,
+      lastName,
+      phoneNumber, // ✅ Sequelize maps this to `phone_number`
+    });
 
     const token: JwtSignResult = signJwt({ userId: user.id, email: user.email }, '6h');
     if (typeof token !== 'string') {
@@ -33,6 +40,7 @@ export const register = async (
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
+        phoneNumber: user.phoneNumber, // ✅ Include in response
       },
     });
   } catch (err) {
@@ -70,6 +78,7 @@ export const login = async (
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
+        phoneNumber: user.phoneNumber, // ✅ Also returned at login
       },
     });
   } catch (err) {

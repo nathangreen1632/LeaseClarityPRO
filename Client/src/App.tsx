@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import AppRoutes from './AppRoutes';
 import Footer from './components/Footer';
 import LeaseChatbotModal from './components/LeaseChatbotModal';
+import OtpResetModal from './components/OtpResetModal';
 
 export default function App(): React.ReactElement {
   return (
@@ -12,6 +13,7 @@ export default function App(): React.ReactElement {
       <AppRoutes />
       <Footer />
       <LeaseChatbotModal />
+      <OtpResetModal />
     </BrowserRouter>
   );
 }
