@@ -1,4 +1,4 @@
-# 📄 LeaseClarityPRO
+# 📄 <span style="color: white;">LeaseClarity</span><span style="color: #ef4444;">PRO</span>
 
 ![Status](https://img.shields.io/badge/status-in--production-brightgreen)
 ![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o-blue)
@@ -69,6 +69,10 @@
 | Auth/Email  | JWT, Resend, reCAPTCHA v3                    |
 | Hosting     | Render.com (Client + Server), PostgreSQL     |
 
+
+![Frontend Tech Stack](https://skillicons.dev/icons?i=webstorm,react,ts,vite,tailwind,html,css,firebase,git,github,&theme=dark)
+<br>
+![Backend Tech Stack](https://skillicons.dev/icons?i=nodejs,express,postgres,sequelize,ai,ts,npm,postman,regex,&theme=dark)
 ---
 
 ## 📁 Project Structure
@@ -85,11 +89,13 @@ LeaseClarityPRO/
 │   └── public/
 │       └── leaseclaritypro.png
 ├── Server/
-│   ├── routes/
-│   ├── controllers/
-│   ├── services/
-│   ├── utils/
-│   └── config/
+│   ├── src/
+│   │     ├── routes/
+│   │     ├── controllers/
+│   │     ├── services/
+│   │     ├── utils/
+│   │     └── config/
+│   └── .env
 ```
 
 ---
@@ -106,33 +112,33 @@ LeaseClarityPRO/
 
 **Server/.env**
 ```
-PORT=3001
-DATABASE_URL=postgres://user:password@host:port/dbname
-OPENAI_API_KEY=your_openai_key
-RESEND_API_KEY=your_resend_key
-RECAPTCHA_SECRET=your_recaptcha_secret
-JWT_SECRET=your_jwt_secret
-```
-
-**Client/.env**
-```
-VITE_API_URL=http://localhost:3001/api
-VITE_RECAPTCHA_SITE_KEY=your_recaptcha_site_key
+  PORT=3001
+  DATABASE_URL=postgres://user:password@host:port/dbname
+  JWT_SECRET=your_jwt_secret
+  OPENAI_API_KEY=your_openai_key
+  OPENSTATES_API_KEY=your_openstates_key
+  TWILIO_ACCOUNT_SID=your_twilio_sid
+  TWILIO_AUTH_TOKEN=your_twilio_token
+  RECAPTCHA_SECRET=your_recaptcha_secret
+  RESEND_API_KEY=your_resend_key
+  FROM_EMAIL=your_from_email_account
 ```
 
 ### 3. Install packages
 ```bash
-cd Server && npm install
-cd ../Client && npm install
+  root/ npm install
+  root/ npm run build
+  root/ npm run dev - run Dev mode
+  root/ npm run start - run Production mode
 ```
 
 ### 4. Start in dev mode
 ```bash
-# Server
-npm run dev
-
-# Client
-npm run dev
+  # Server
+  npm run dev
+  
+  # Client
+  npm run dev
 ```
 
 ---
@@ -158,9 +164,15 @@ npm run dev
 | Multi-Lease Switching            | ✅ Complete |
 | OTP Email Reset Flow             | ✅ Complete |
 | Inactivity Countdown Modal       | ✅ Complete |
-| Role-based Admin + Spanish       | 🔜 Upcoming |
 | Exportable Tenant Reports (PDF)  | 🔜 Upcoming |
-| Chatbot Abuse Prevention Filters | 🔜 Upcoming |
+| Full Tenant Dashboard            | 🔜 Upcoming |
+| Legal Clause Detection           | 🔜 Upcoming |
+| AI-Powered Lease Negotiation     | 🔜 Upcoming |
+| Community Forum                  | 🔜 Upcoming |
+| Tenant Education Resources       | 🔜 Upcoming |
+| AI-Powered Lease Recommendations | 🔜 Upcoming |
+| Integration with Local Laws      | 🔜 Upcoming |
+
 
 ---
 
@@ -168,7 +180,12 @@ npm run dev
 
 **Nathan Green**  
 Founder, One Guy Productions
-- [GitHub](https://github.com/nathangreen1632)
+- [Website](https://www.oneguyproductions.com)
+- [Facebook](https://www.facebook.com/profile.php?id=61577146233520)
+- [Discord](https://discord.com/channels/1308749969821274203/1308749969821274206)
+- [Email](mailto:leaseclaritypro@gmail.com)
+
+## Other Projects
 - [CVitaePRO](https://www.cvitaepro.com)
 - [CareerGistPRO](https://www.careergistpro.com)
 - [PyDataPRO](http://www.pydatapro.com)
